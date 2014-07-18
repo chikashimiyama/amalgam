@@ -14,12 +14,24 @@
 #include "ofMain.h"
 
 struct Particle{
-    cl_float position[3];
     cl_float orientation[3];
     cl_float acceleration[3];
-    cl_int visible;
+    cl_int lifespan;
     cl_int age;
-    cl_int dummy[5];
 };
+
+struct ParticleSetting{
+    cl_float origin[3];
+    cl_float originSpread[3];
+    cl_float orientation[3];
+    cl_float orientationSpread[3];
+    cl_float acceleration[3];
+    cl_float accelerationSpread[3];
+    cl_uint lifeSpan[2];
+    cl_uint numberOfSpawn;
+    cl_uint spawninIndex;
+    cl_int dummy[10];
+};
+
 
 #endif /* defined(__amalgam__Points__) */

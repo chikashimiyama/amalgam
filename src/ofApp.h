@@ -7,20 +7,29 @@
 
 class ofApp : public ofBaseApp{
     private:
-        Particle particleBuffer[NUM_PARTICLES];
         cl::Program *clProgram;
         cl::Context *clContext;
         cl::CommandQueue *clQueue;
         cl::Kernel *clKernel;
         cl::KernelFunctor *clUpdateKernelFunctor;
-        cl::Buffer *clParticleBuffer;
-        cl::BufferGL *clBufferGL;
         ofCamera camera;
-        ofVec3f dots[NUM_PARTICLES];
-        ofFloatColor dotColors[NUM_PARTICLES];
-        ofVbo dotsVBO;
     
+        // buffers
+        cl::Buffer *clParticleBuffer; // GPU
+        Particle particleBuffer[NUM_PARTICLES]; // CPU
+        cl::Buffer *clParticleSettingBuffer; // GPU
+        ParticleSetting particleSetting; // CPU
+        cl::BufferGL *clBufferGL; // GPU -CL
+        ofVbo dotsVBO; // GPU -GL
+        ofVec3f dots[NUM_PARTICLES]; // CPU
+    
+        cl::Buffer *clRandomTable;
+        float randomTable[NUM_PARTICLES * 3];
+    
+        void initParticleSetting();
+        void createRandomTable();
 	public:
+        ~ofApp();
 		void setup();
 		void update();
 		void draw();
