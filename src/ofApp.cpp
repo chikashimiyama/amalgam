@@ -1,6 +1,7 @@
 #include "ofApp.h"
 #include "cl.hpp"
 #include "Particle.h"
+#include "IsoTable.h"
 
 ofApp::~ofApp(){
     
@@ -52,6 +53,25 @@ void ofApp::createRandomTable(){
     for (int i = 0; i < NUM_PARTICLES * 3; i++) {
         randomTable[i] = ofRandom(-1.0, 1.0);
     }
+}
+
+void ofApp::setupGui(){
+    
+    originPG.setName("origin");
+    originPG.add(originP.set("origin", ofVec3f(0, 0, 0) ,ofVec3f(-10, -10, -10), ofVec3f(10, 10, 10)));
+    originPG.add(originSpreadP.set("originSpread", ofVec3f(0, 0, 0) ,ofVec3f(-10, -10, -10), ofVec3f(10, 10, 10)));
+    orientationPG.setName("orientation");
+    orientationPG.add(orientationP.set("orientation", ofVec3f(0, 0, 0) ,ofVec3f(-10, -10, -10), ofVec3f(10, 10, 10)));
+    orientationPG.add(orientationSpreadP.set("orientationSpread",ofVec3f(0, 0, 0) ,ofVec3f(-10, -10, -10), ofVec3f(10, 10, 10)));
+    accelerationPG.setName("acceleration");
+    accelerationPG.add(accelerationP.set("acceleration",ofVec3f(0, 0, 0) ,ofVec3f(-10, -10, -10), ofVec3f(10, 10, 10)));
+    accelerationPG.add(accelerationSpreadP.set("accelerationSpread", ofVec3f(0, 0, 0) ,ofVec3f(-10, -10, -10), ofVec3f(10, 10, 10)));
+    
+    
+    panel.setup(originPG);
+    panel.add(orientationPG);
+    panel.add(accelerationPG);
+
 }
 
 
@@ -134,7 +154,20 @@ void ofApp::setup(){
     clKernel = new cl::Kernel(*clProgram, "update");
     clUpdateKernelFunctor = new cl::KernelFunctor(*clKernel, *clQueue, cl::NullRange, cl::NDRange(NUM_PARTICLES), cl::NullRange);
     
+    
+    //gui
+    setupGui();
+    
     ofLog() << "setup finished";
+}
+
+void ofApp::updateFromGui(){
+    
+    particleSetting.origin[0] = originP.get().x;
+    particleSetting.origin[1] = originP.get().y;
+    particleSetting.origin[2] = originP.get().z;
+    //to be continued
+    
 }
 
 //--------------------------------------------------------------
@@ -145,12 +178,12 @@ void ofApp::update(){
         particleSetting.spawninIndex %= NUM_PARTICLES;
     }
     
+    updateFromGui();
     clQueue->enqueueWriteBuffer(
                                 *clParticleSettingBuffer ,CL_TRUE,0,
                                 sizeof(ParticleSetting), &particleSetting);
 
     (*clUpdateKernelFunctor)(*clParticleBuffer, *clParticleSettingBuffer, *clBufferGL, *clRandomTable);
-    //clQueue->finish();
 }
 
 //--------------------------------------------------------------
@@ -165,6 +198,7 @@ void ofApp::draw(){
     dotsVBO.draw(GL_POINTS, 0, NUM_PARTICLES);
     camera.end();
 
+    panel.draw();
 }
 
 //--------------------------------------------------------------

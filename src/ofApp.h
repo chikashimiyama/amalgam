@@ -3,6 +3,8 @@
 #include "ofMain.h"
 #include "Particle.h"
 #include "cl.hpp"
+#include "ofxGui.h"
+
 #define NUM_PARTICLES 1024
 
 class ofApp : public ofBaseApp{
@@ -28,6 +30,16 @@ class ofApp : public ofBaseApp{
     
         void initParticleSetting();
         void createRandomTable();
+        void setupGui();
+        void updateFromGui();
+    
+        // gui
+        ofxPanel panel;
+        ofParameterGroup originPG, orientationPG, accelerationPG;
+        ofParameter<ofVec3f> originP, originSpreadP;
+        ofParameter<ofVec3f> orientationP, orientationSpreadP;
+        ofParameter<ofVec3f> accelerationP, accelerationSpreadP;
+    
 	public:
         ~ofApp();
 		void setup();

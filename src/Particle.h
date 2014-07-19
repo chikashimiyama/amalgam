@@ -33,5 +33,21 @@ struct ParticleSetting{
     cl_int dummy[10];
 };
 
+struct IsoPoint{
+    cl_float x;
+    cl_float y;
+    cl_float z;
+    cl_float dummy;
+};
+
+struct IsoCube{
+    struct IsoPoint points[8];
+};
+
+struct IsoSurface{
+    
+};
+
+
 
 #endif /* defined(__amalgam__Points__) */
