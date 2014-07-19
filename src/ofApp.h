@@ -4,42 +4,28 @@
 #include "Particle.h"
 #include "cl.hpp"
 #include "ofxGui.h"
+#include "Emitter.h"
+#include "Constant.h"
 
-#define NUM_PARTICLES 1024
+
 
 class ofApp : public ofBaseApp{
     private:
-        cl::Program *clProgram;
-        cl::Context *clContext;
-        cl::CommandQueue *clQueue;
-        cl::Kernel *clKernel;
-        cl::KernelFunctor *clUpdateKernelFunctor;
-        ofCamera camera;
-    
-        // buffers
-        cl::Buffer *clParticleBuffer; // GPU
-        Particle particleBuffer[NUM_PARTICLES]; // CPU
-        cl::Buffer *clParticleSettingBuffer; // GPU
-        ParticleSetting particleSetting; // CPU
-        cl::BufferGL *clBufferGL; // GPU -CL
-        ofVbo dotsVBO; // GPU -GL
-        ofVec3f dots[NUM_PARTICLES]; // CPU
-    
-        cl::Buffer *clRandomTable;
-        float randomTable[NUM_PARTICLES * 3];
-    
         void initParticleSetting();
         void createRandomTable();
         void setupGui();
-        void updateFromGui();
+        // GL
+        ofCamera camera;
+
+        // OpenCl
+        cl::Program *clProgram;
+        cl::Context *clContext;
+        cl::CommandQueue *clQueue;
     
         // gui
+        Emitter emitter;
         ofxPanel panel;
-        ofParameterGroup originPG, orientationPG, accelerationPG;
-        ofParameter<ofVec3f> originP, originSpreadP;
-        ofParameter<ofVec3f> orientationP, orientationSpreadP;
-        ofParameter<ofVec3f> accelerationP, accelerationSpreadP;
-    
+
 	public:
         ~ofApp();
 		void setup();

@@ -4,18 +4,9 @@
 #include "IsoTable.h"
 
 ofApp::~ofApp(){
-    
-    if(clUpdateKernelFunctor){
-        delete clUpdateKernelFunctor;
-        ofLog() << "clUpdateKernelFunctor deleted";
-    }
     if (clQueue) {
         delete clQueue;
         ofLog() << "clQueue deleted";
-    }
-    if(clKernel){
-        delete clKernel;
-        ofLog() << "clKernel deleted";
     }
     if (clProgram) {
         delete clProgram;
@@ -27,55 +18,16 @@ ofApp::~ofApp(){
     }
 }
 
-void ofApp::initParticleSetting(){
-    particleSetting.origin[0] = 0.0;
-    particleSetting.origin[1] = 0.0;
-    particleSetting.origin[2] = 0.0;
-    particleSetting.originSpread[0] = 0.0;
-    particleSetting.originSpread[1] = 0.0;
-    particleSetting.originSpread[2] = 0.0;
-    particleSetting.orientation[0] = 0.0;
-    particleSetting.orientation[1] = 0.05;
-    particleSetting.orientation[2] = 0.0;
-    particleSetting.orientationSpread[0] = 0.1;
-    particleSetting.orientationSpread[1] = 0.1;
-    particleSetting.orientationSpread[2] = 0.1;
-    particleSetting.accelerationSpread[0] = 0.0;
-    particleSetting.accelerationSpread[1] = 0.0;
-    particleSetting.accelerationSpread[2] = 0.0;
-    particleSetting.lifeSpan[0] = 200;
-    particleSetting.lifeSpan[1] = 200;
-    particleSetting.numberOfSpawn = 5;
-    particleSetting.spawninIndex = 0;
-}
 
-void ofApp::createRandomTable(){
-    for (int i = 0; i < NUM_PARTICLES * 3; i++) {
-        randomTable[i] = ofRandom(-1.0, 1.0);
-    }
-}
 
 void ofApp::setupGui(){
     
-    originPG.setName("origin");
-    originPG.add(originP.set("origin", ofVec3f(0, 0, 0) ,ofVec3f(-10, -10, -10), ofVec3f(10, 10, 10)));
-    originPG.add(originSpreadP.set("originSpread", ofVec3f(0, 0, 0) ,ofVec3f(-10, -10, -10), ofVec3f(10, 10, 10)));
-    orientationPG.setName("orientation");
-    orientationPG.add(orientationP.set("orientation", ofVec3f(0, 0, 0) ,ofVec3f(-10, -10, -10), ofVec3f(10, 10, 10)));
-    orientationPG.add(orientationSpreadP.set("orientationSpread",ofVec3f(0, 0, 0) ,ofVec3f(-10, -10, -10), ofVec3f(10, 10, 10)));
-    accelerationPG.setName("acceleration");
-    accelerationPG.add(accelerationP.set("acceleration",ofVec3f(0, 0, 0) ,ofVec3f(-10, -10, -10), ofVec3f(10, 10, 10)));
-    accelerationPG.add(accelerationSpreadP.set("accelerationSpread", ofVec3f(0, 0, 0) ,ofVec3f(-10, -10, -10), ofVec3f(10, 10, 10)));
-    
-    
-    panel.setup(originPG);
-    panel.add(orientationPG);
-    panel.add(accelerationPG);
+    panel.setup("Parameters");
+    panel.add(emitter.getParameterGroup());
 
 }
 
 
-//--------------------------------------------------------------
 void ofApp::setup(){
     
     cl_int err = CL_SUCCESS;
@@ -118,84 +70,38 @@ void ofApp::setup(){
     }
     ofLog() << "CL program successfuly built";
     
-    ofLog() << "allocate and init GPU buffer";
-    clParticleBuffer = new cl::Buffer(*clContext,CL_MEM_READ_WRITE,sizeof(Particle)*NUM_PARTICLES);
-    for (int i = 0; i < NUM_PARTICLES; i++){
-        //particleBuffer[i].age = 100000; // dead
-    }
-    
+
     ofLog() << "create a command Queue";
     clQueue = new cl::CommandQueue(*clContext,default_device);
-    clQueue->enqueueWriteBuffer(
-                                *clParticleBuffer ,CL_TRUE,0,
-                                sizeof(Particle)*NUM_PARTICLES, particleBuffer);
+    
 
-    ofLog() << "allocate and init setting buffer";
-    clParticleSettingBuffer = new cl::Buffer(*clContext,CL_MEM_READ_WRITE,sizeof(particleSetting));
-    initParticleSetting();
-    clQueue->enqueueWriteBuffer(
-                                *clParticleSettingBuffer ,CL_TRUE,0,
-                                sizeof(ParticleSetting), &particleSetting);
-    
-    ofLog() << "allocate VBO and setup GL / CL interpolarity";
-    
-    dotsVBO.setVertexData(dots, NUM_PARTICLES, GL_DYNAMIC_DRAW);
-    int vboId = dotsVBO.getVertId();
-    clBufferGL = new cl::BufferGL(*clContext, CL_MEM_READ_WRITE, vboId);
-    
-    ofLog() << "create random Table";
-    clRandomTable = new cl::Buffer(*clContext,CL_MEM_READ_WRITE,sizeof(float) * NUM_PARTICLES * 3);
-    createRandomTable();
-    clQueue->enqueueWriteBuffer(
-                                *clRandomTable ,CL_TRUE,0,
-                                sizeof(float) * NUM_PARTICLES * 3 , randomTable);
-    
-    ofLog() << "setup update functor";
-    clKernel = new cl::Kernel(*clProgram, "update");
-    clUpdateKernelFunctor = new cl::KernelFunctor(*clKernel, *clQueue, cl::NullRange, cl::NDRange(NUM_PARTICLES), cl::NullRange);
-    
-    
     //gui
+    emitter.setup(clContext, clProgram, clQueue);
     setupGui();
     
     ofLog() << "setup finished";
 }
 
-void ofApp::updateFromGui(){
-    
-    particleSetting.origin[0] = originP.get().x;
-    particleSetting.origin[1] = originP.get().y;
-    particleSetting.origin[2] = originP.get().z;
-    //to be continued
-    
-}
+
 
 //--------------------------------------------------------------
 void ofApp::update(){
-
-    particleSetting.spawninIndex += particleSetting.numberOfSpawn;
-    if (particleSetting.spawninIndex > NUM_PARTICLES) {
-        particleSetting.spawninIndex %= NUM_PARTICLES;
-    }
     
-    updateFromGui();
-    clQueue->enqueueWriteBuffer(
-                                *clParticleSettingBuffer ,CL_TRUE,0,
-                                sizeof(ParticleSetting), &particleSetting);
-
-    (*clUpdateKernelFunctor)(*clParticleBuffer, *clParticleSettingBuffer, *clBufferGL, *clRandomTable);
+    emitter.update();
+    
+    
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
     ofBackground(0, 0, 0);
-    camera.setGlobalPosition(0, 1.0, 100);
+    camera.setGlobalPosition(0, 1.0, 20);
     camera.setNearClip(0.01);
     camera.setFarClip(10000.0);
 
     glPointSize(5);
     camera.begin();
-    dotsVBO.draw(GL_POINTS, 0, NUM_PARTICLES);
+    emitter.draw();
     camera.end();
 
     panel.draw();
