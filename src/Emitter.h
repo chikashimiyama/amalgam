@@ -9,7 +9,6 @@
 #ifndef __amalgam__Emitter__
 #define __amalgam__Emitter__
 
-#include <iostream>
 #include "ofMain.h"
 #include "cl.hpp"
 #include "Particle.h"

@@ -9,6 +9,6 @@
 #ifndef amalgam_Constant_h
 #define amalgam_Constant_h
 
-#define NUM_PARTICLES 1024
+#define NUM_PARTICLES 256
 
 #endif

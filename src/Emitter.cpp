@@ -10,6 +10,23 @@
 
 Emitter::~Emitter(){
     
+    if(clParticleBuffer){
+        delete clParticleBuffer;
+        ofLog() << "clParticleBuffer deleted";
+    }
+    if(clParticleSettingBuffer){
+        delete clParticleSettingBuffer;
+        ofLog() << "clParticleSettingBuffer deleted";
+    }
+    if(clBufferGL){
+        delete clBufferGL;
+        ofLog() << "clBufferGL deleted";
+    }
+    if(clKernel){
+        delete clKernel;
+        ofLog() << "clKernel deleted";
+    }
+    
     if(clUpdateKernelFunctor){
         delete clUpdateKernelFunctor;
         ofLog() << "clUpdateKernelFunctor deleted";
@@ -60,6 +77,7 @@ void Emitter::createParameterGroups(){
     accelerationPG.add(accelerationP.set("acceleration",ofVec3f(0, 0, 0) ,ofVec3f(-0.01, -0.01, -0.01), ofVec3f(0.01, 0.01, 0.01)));
     accelerationPG.add(accelerationSpreadP.set("accelerationSpread", ofVec3f(0, 0, 0) ,ofVec3f(-0.01, -0.01, -0.01), ofVec3f(0.01, 0.01, 0.01)));
     numSpawnP.set("numSpawn", 5, 0 ,10);
+    emitterPG.setName("Emitter");
     emitterPG.add(originPG);
     emitterPG.add(orientationPG);
     emitterPG.add(accelerationPG);

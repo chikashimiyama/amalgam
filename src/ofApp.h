@@ -5,6 +5,7 @@
 #include "cl.hpp"
 #include "ofxGui.h"
 #include "Emitter.h"
+#include "Metaball.h"
 #include "Constant.h"
 
 
@@ -24,6 +25,7 @@ class ofApp : public ofBaseApp{
     
         // gui
         Emitter emitter;
+        Metaball metaball;
         ofxPanel panel;
 
 	public:

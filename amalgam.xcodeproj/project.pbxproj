@@ -15,6 +15,8 @@
 		624C0706197A10AF00988965 /* ofxSlider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 624C06FB197A10AF00988965 /* ofxSlider.cpp */; };
 		624C0707197A10AF00988965 /* ofxSliderGroup.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 624C06FD197A10AF00988965 /* ofxSliderGroup.cpp */; };
 		624C0708197A10AF00988965 /* ofxToggle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 624C06FF197A10AF00988965 /* ofxToggle.cpp */; };
+		624C070B197A79A700988965 /* Emitter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 624C0709197A79A700988965 /* Emitter.cpp */; };
+		624C0712197A965200988965 /* Metaball.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 624C0710197A965200988965 /* Metaball.cpp */; };
 		624DC5DF197848B5003376B4 /* OpenCL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 624DC5DE197848B5003376B4 /* OpenCL.framework */; };
 		624DC5E51978601C003376B4 /* amalgam.cl in Sources */ = {isa = PBXBuildFile; fileRef = 624DC5E41978601C003376B4 /* amalgam.cl */; };
 		BBAB23CB13894F3D00AA2426 /* GLUT.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = BBAB23BE13894E4700AA2426 /* GLUT.framework */; };
@@ -87,6 +89,11 @@
 		624C06FE197A10AF00988965 /* ofxSliderGroup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxSliderGroup.h; sourceTree = "<group>"; };
 		624C06FF197A10AF00988965 /* ofxToggle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxToggle.cpp; sourceTree = "<group>"; };
 		624C0700197A10AF00988965 /* ofxToggle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxToggle.h; sourceTree = "<group>"; };
+		624C0709197A79A700988965 /* Emitter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Emitter.cpp; sourceTree = "<group>"; };
+		624C070A197A79A700988965 /* Emitter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Emitter.h; sourceTree = "<group>"; };
+		624C070C197A7EC500988965 /* Constant.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Constant.h; sourceTree = "<group>"; };
+		624C0710197A965200988965 /* Metaball.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Metaball.cpp; sourceTree = "<group>"; };
+		624C0711197A965200988965 /* Metaball.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Metaball.h; sourceTree = "<group>"; };
 		624DC5DC197846DB003376B4 /* Particle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Particle.h; sourceTree = "<group>"; };
 		624DC5DE197848B5003376B4 /* OpenCL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenCL.framework; path = System/Library/Frameworks/OpenCL.framework; sourceTree = SDKROOT; };
 		624DC5E319785697003376B4 /* cl.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = cl.hpp; sourceTree = "<group>"; };
@@ -248,12 +255,17 @@
 		E4B69E1C0A3A1BDC003C02F2 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				624C070C197A7EC500988965 /* Constant.h */,
+				624C0710197A965200988965 /* Metaball.cpp */,
+				624C0711197A965200988965 /* Metaball.h */,
 				624DC5E41978601C003376B4 /* amalgam.cl */,
 				E4B69E1D0A3A1BDC003C02F2 /* main.cpp */,
-				E4B69E1E0A3A1BDC003C02F2 /* ofApp.cpp */,
-				E4B69E1F0A3A1BDC003C02F2 /* ofApp.h */,
-				624DC5DC197846DB003376B4 /* Particle.h */,
 				624C06ED197A0DF000988965 /* IsoTable.h */,
+				624C070A197A79A700988965 /* Emitter.h */,
+				624C0709197A79A700988965 /* Emitter.cpp */,
+				E4B69E1F0A3A1BDC003C02F2 /* ofApp.h */,
+				E4B69E1E0A3A1BDC003C02F2 /* ofApp.cpp */,
+				624DC5DC197846DB003376B4 /* Particle.h */,
 				624DC5E319785697003376B4 /* cl.hpp */,
 			);
 			path = src;
@@ -361,7 +373,9 @@
 				624C0706197A10AF00988965 /* ofxSlider.cpp in Sources */,
 				624C0703197A10AF00988965 /* ofxGuiGroup.cpp in Sources */,
 				624C0705197A10AF00988965 /* ofxPanel.cpp in Sources */,
+				624C070B197A79A700988965 /* Emitter.cpp in Sources */,
 				E4B69E200A3A1BDC003C02F2 /* main.cpp in Sources */,
+				624C0712197A965200988965 /* Metaball.cpp in Sources */,
 				624DC5E51978601C003376B4 /* amalgam.cl in Sources */,
 				624C0704197A10AF00988965 /* ofxLabel.cpp in Sources */,
 				E4B69E210A3A1BDC003C02F2 /* ofApp.cpp in Sources */,

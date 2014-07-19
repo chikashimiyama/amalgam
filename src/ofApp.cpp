@@ -18,15 +18,11 @@ ofApp::~ofApp(){
     }
 }
 
-
-
 void ofApp::setupGui(){
     
     panel.setup("Parameters");
     panel.add(emitter.getParameterGroup());
-
 }
-
 
 void ofApp::setup(){
     
@@ -70,15 +66,13 @@ void ofApp::setup(){
     }
     ofLog() << "CL program successfuly built";
     
-
-    ofLog() << "create a command Queue";
     clQueue = new cl::CommandQueue(*clContext,default_device);
     
-
     //gui
     emitter.setup(clContext, clProgram, clQueue);
-    setupGui();
+    metaball.setup(clContext, clProgram, clQueue);
     
+    setupGui();
     ofLog() << "setup finished";
 }
 
@@ -88,7 +82,7 @@ void ofApp::setup(){
 void ofApp::update(){
     
     emitter.update();
-    
+    metaball.update();
     
 }
 
@@ -100,8 +94,11 @@ void ofApp::draw(){
     camera.setFarClip(10000.0);
 
     glPointSize(5);
+    
     camera.begin();
     emitter.draw();
+    metaball.draw();
+    
     camera.end();
 
     panel.draw();

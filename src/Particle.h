@@ -1,17 +1,15 @@
 //
-//  Points.h
+//  Particle.h
 //  amalgam
 //
 //  Created by Chikashi Miyama on 17/07/14.
 //
 //
 
-#ifndef __amalgam__Points__
-#define __amalgam__Points__
+#ifndef __amalgam__Particle__
+#define __amalgam__Particle__
 
-#include <iostream>
 #include <cl.hpp>
-#include "ofMain.h"
 
 struct Particle{
     cl_float orientation[3];
@@ -50,4 +48,4 @@ struct IsoSurface{
 
 
 
-#endif /* defined(__amalgam__Points__) */
+#endif /* defined(__amalgam__Particle__) */
