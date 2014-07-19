@@ -30,7 +30,7 @@ private:
     cl::Buffer *clParticleSettingBuffer; // GPU
     ParticleSetting particleSetting; // CPU
     
-    cl::BufferGL *clBufferGL; // GPU -CL
+    cl::BufferGL *clParticleBufferGL; // GPU -CL
     ofVbo dotsVBO; // GPU -GL
     ofVec3f dots[NUM_PARTICLES]; // CPU
     
@@ -57,8 +57,14 @@ public:
     void update();
     void draw();
     ofParameterGroup getParameterGroup();
+    cl::BufferGL *getParticleBufferGL();
+
 };
 
 inline ofParameterGroup Emitter::getParameterGroup(){
     return emitterPG;
+}
+
+inline cl::BufferGL *Emitter::getParticleBufferGL(){
+    return clParticleBufferGL;
 }

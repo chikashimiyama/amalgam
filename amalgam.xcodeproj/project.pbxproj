@@ -71,7 +71,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		624C06ED197A0DF000988965 /* IsoTable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IsoTable.h; sourceTree = "<group>"; };
 		624C06F0197A10AF00988965 /* ofxBaseGui.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxBaseGui.cpp; sourceTree = "<group>"; };
 		624C06F1197A10AF00988965 /* ofxBaseGui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxBaseGui.h; sourceTree = "<group>"; };
 		624C06F2197A10AF00988965 /* ofxButton.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxButton.cpp; sourceTree = "<group>"; };
@@ -260,7 +259,6 @@
 				624C0711197A965200988965 /* Metaball.h */,
 				624DC5E41978601C003376B4 /* amalgam.cl */,
 				E4B69E1D0A3A1BDC003C02F2 /* main.cpp */,
-				624C06ED197A0DF000988965 /* IsoTable.h */,
 				624C070A197A79A700988965 /* Emitter.h */,
 				624C0709197A79A700988965 /* Emitter.cpp */,
 				E4B69E1F0A3A1BDC003C02F2 /* ofApp.h */,

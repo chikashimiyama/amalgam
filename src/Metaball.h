@@ -17,20 +17,43 @@
 class Metaball{
     
 private:
-    cl::Buffer *clParticleSettingBuffer; // GPU
-    ParticleSetting particleSetting; // CPU
+
+
     
-    cl::BufferGL *clBufferGL; // GPU -CL
-    ofVbo surfaceVBO; // GPU -GL
-    ofVec3f surfacePoints[NUM_PARTICLES]; // CPU
+    static const cl_int edgeTable[]; // CPU
+    cl::Buffer *clEdgeTable; // GPU
+
+    static const cl_int triTable[][16]; // CPU
+    cl::Buffer *clTriTable; //GPU
+    
+    IsoPoint isoPoints[NUM_ISO_POINTS]; // CPU
+    cl::Buffer *clIsoPoints; // GPU
+    
+    ofVec3f triangleSurface[NUM_ISO_POINTS]; // CPU
+    cl::BufferGL *clTriangleSurfaceBufferGL; // GPU -CL
+    ofVbo triangleSurfaceVBO; // GPU -GL
+    
+    cl::Buffer *clNumberOfValidPoints;
+    
+    cl::Kernel *clKernelUpdateIsoPoints;
+    cl::KernelFunctor *clUpdateIsoPointsFunctor;
+    
+    cl::Kernel *clKernelCreateIsoSurface;
+    cl::KernelFunctor *clCreateIsoSurfaceFunctor;
+
     
     cl::CommandQueue *clQueue;
+    int getPointPos(int x, int y, int z);
+    void createMatrix();
+    void createTriangleVbo();
+
     
 public:
+    Metaball():clNumberOfValidPoints(){}
+    ~Metaball();
     void setup(cl::Context *clContext, cl::Program *clProgram, cl::CommandQueue *clQueue);
-    void update();
+    void update(cl::BufferGL *clParticleBufferGL);
     void draw();
     
 };
-
 #endif /* defined(__amalgam__Metaball__) */

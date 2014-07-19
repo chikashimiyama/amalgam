@@ -18,8 +18,8 @@ Emitter::~Emitter(){
         delete clParticleSettingBuffer;
         ofLog() << "clParticleSettingBuffer deleted";
     }
-    if(clBufferGL){
-        delete clBufferGL;
+    if(clParticleBufferGL){
+        delete clParticleBufferGL;
         ofLog() << "clBufferGL deleted";
     }
     if(clKernel){
@@ -62,7 +62,7 @@ void Emitter::initParticleSetting(){
     
     particleSetting.lifeSpan[0] = 10000;
     particleSetting.lifeSpan[1] = 10000;
-    particleSetting.numberOfSpawn = 5;
+    particleSetting.numberOfSpawn = 2;
     particleSetting.spawninIndex = 0;
 }
 
@@ -102,7 +102,7 @@ void Emitter::setup(cl::Context *clContext, cl::Program *clProgram, cl::CommandQ
 
     dotsVBO.setVertexData(dots, NUM_PARTICLES, GL_DYNAMIC_DRAW);
     int vboId = dotsVBO.getVertId();
-    clBufferGL = new cl::BufferGL(*clContext, CL_MEM_READ_WRITE, vboId);
+    clParticleBufferGL = new cl::BufferGL(*clContext, CL_MEM_READ_WRITE, vboId);
     
     ofLog() << "create random Table";
     clRandomTable = new cl::Buffer(*clContext,CL_MEM_READ_WRITE,sizeof(float) * NUM_PARTICLES * 3);
@@ -119,7 +119,7 @@ void Emitter::update(void){
     clQueue->enqueueWriteBuffer(*clParticleSettingBuffer ,CL_TRUE,0,sizeof(ParticleSetting), &particleSetting);
     
     // let GPU to calculate the movement of particle
-    (*clUpdateKernelFunctor)(*clParticleBuffer, *clParticleSettingBuffer, *clBufferGL, *clRandomTable);
+    (*clUpdateKernelFunctor)(*clParticleBuffer, *clParticleSettingBuffer, *clParticleBufferGL, *clRandomTable);
     
     particleSetting.spawninIndex += particleSetting.numberOfSpawn;
     if (particleSetting.spawninIndex > NUM_PARTICLES) {

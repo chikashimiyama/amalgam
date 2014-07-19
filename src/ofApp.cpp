@@ -1,7 +1,6 @@
 #include "ofApp.h"
 #include "cl.hpp"
 #include "Particle.h"
-#include "IsoTable.h"
 
 ofApp::~ofApp(){
     if (clQueue) {
@@ -82,14 +81,14 @@ void ofApp::setup(){
 void ofApp::update(){
     
     emitter.update();
-    metaball.update();
+    metaball.update(emitter.getParticleBufferGL());
     
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
     ofBackground(0, 0, 0);
-    camera.setGlobalPosition(0, 1.0, 20);
+    camera.setGlobalPosition(0, 1.0, 40);
     camera.setNearClip(0.01);
     camera.setFarClip(10000.0);
 
@@ -97,8 +96,8 @@ void ofApp::draw(){
     
     camera.begin();
     emitter.draw();
-    metaball.draw();
     
+    metaball.draw();
     camera.end();
 
     panel.draw();
