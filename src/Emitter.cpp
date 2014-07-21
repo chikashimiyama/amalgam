@@ -68,10 +68,10 @@ void Emitter::initParticleSetting(){
 
 void Emitter::createParameterGroups(){
     originPG.setName("origin");
-    originPG.add(originP.set("origin", ofVec3f(0, 0, 0) ,ofVec3f(-10, -10, -10), ofVec3f(10, 10, 10)));
-    originPG.add(originSpreadP.set("originSpread", ofVec3f(1, 1, 1) ,ofVec3f(-10, -10, -10), ofVec3f(10, 10, 10)));
+    originPG.add(originP.set("origin", ofVec3f(0, 0, 0) ,ofVec3f(-400, -400, -400), ofVec3f(400, 400, 400)));
+    originPG.add(originSpreadP.set("originSpread", ofVec3f(1, 1, 1) ,ofVec3f(-300, -300, -300), ofVec3f(300, 300, 300)));
     orientationPG.setName("orientation");
-    orientationPG.add(orientationP.set("orientation", ofVec3f(0.0, 0.0, 0.0) ,ofVec3f(-1, -1, -1), ofVec3f(1, 1, 1)));
+    orientationPG.add(orientationP.set("orientation", ofVec3f(0.0, 0.0, 0.0) ,ofVec3f(-10, -10, -10), ofVec3f(10, 10, 10)));
     orientationPG.add(orientationSpreadP.set("orientationSpread",ofVec3f(0.1, 0.1, 0.1) ,ofVec3f(0, 0, 0), ofVec3f(1, 1, 1)));
     accelerationPG.setName("acceleration");
     accelerationPG.add(accelerationP.set("acceleration",ofVec3f(0, 0, 0) ,ofVec3f(-0.01, -0.01, -0.01), ofVec3f(0.01, 0.01, 0.01)));
@@ -154,6 +154,8 @@ void Emitter::updateFromParameters(){
 }
 
 void Emitter::draw(void){
+    glPointSize(20);
     dotsVBO.draw(GL_POINTS, 0, NUM_PARTICLES);
+    glPointSize(1);
 
 }

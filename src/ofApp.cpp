@@ -49,7 +49,25 @@ void ofApp::setup(){
         abort();
     }
     cl::Device default_device = devices[0];
-
+    size_t maxWorkGroupSize;
+    size_t globalMemSize;
+    size_t maxWorkItemDimensions;
+    size_t* maxWorkItemSizes;
+    default_device.getInfo(CL_DEVICE_MAX_WORK_GROUP_SIZE, &maxWorkGroupSize);
+    default_device.getInfo(CL_DEVICE_GLOBAL_MEM_SIZE, &globalMemSize);
+    default_device.getInfo(CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS, &maxWorkItemDimensions);
+    maxWorkItemSizes = new size_t[maxWorkItemDimensions];
+    default_device.getInfo(CL_DEVICE_MAX_WORK_ITEM_SIZES, maxWorkItemSizes);
+    
+    ofLog() << "Max work group size:" << maxWorkGroupSize;
+    ofLog() << "Global memory size:" << globalMemSize;
+    ofLog() << "Max Work Item Dimensions:" << maxWorkItemDimensions;
+    ofLog() << "Max Work Item Sizes:";
+    for(int i = 0; i < maxWorkItemDimensions; i ++){
+        ofLog() << " dim" << i << ":" << maxWorkItemSizes[i];
+    }
+    
+    delete maxWorkItemSizes;
     
     // open CL file
     ofLog() << "load CL program";
@@ -88,15 +106,18 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
     ofBackground(0, 0, 0);
-    camera.setGlobalPosition(0, 1.0, 40);
+    camera.setPosition(300, 300, 600);
+    camera.lookAt(ofVec3f(0,0,0));
     camera.setNearClip(0.01);
     camera.setFarClip(10000.0);
 
-    glPointSize(5);
     
     camera.begin();
+    ofSetColor(255, 255, 255);
+
     emitter.draw();
     
+    ofSetColor(255, 0, 0);
     metaball.draw();
     camera.end();
 

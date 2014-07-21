@@ -27,11 +27,17 @@ private:
     cl::Buffer *clTriTable; //GPU
     
     IsoPoint isoPoints[NUM_ISO_POINTS]; // CPU
-    cl::Buffer *clIsoPoints; // GPU
+    cl::Buffer *clIsoPoints; // GPU -CL
+    
+    // for debugging
+    ofVec3f isoPointsVerticies[NUM_ISO_POINTS];
+    ofFloatColor isoPointsColors[NUM_ISO_POINTS];
+    ofVbo isoPointsVBO; // GPU - GL for test
     
     ofVec3f triangleSurface[NUM_ISO_POINTS]; // CPU
     cl::BufferGL *clTriangleSurfaceBufferGL; // GPU -CL
     ofVbo triangleSurfaceVBO; // GPU -GL
+    
     
     cl::Buffer *clNumberOfValidPoints;
     
