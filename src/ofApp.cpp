@@ -122,6 +122,8 @@ void ofApp::draw(){
     camera.end();
 
     panel.draw();
+//    ofLog() << ofGetFrameRate();
+    
 }
 
 //--------------------------------------------------------------

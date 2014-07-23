@@ -1,5 +1,5 @@
 #pragma once
-
+#pragma OPENCL EXTENSION cl_khr_global_int32_base_atomics : enable
 #include "ofMain.h"
 #include "Particle.h"
 #include "cl.hpp"

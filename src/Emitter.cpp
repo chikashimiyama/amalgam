@@ -62,25 +62,29 @@ void Emitter::initParticleSetting(){
     
     particleSetting.lifeSpan[0] = 10000;
     particleSetting.lifeSpan[1] = 10000;
-    particleSetting.numberOfSpawn = 2;
+    particleSetting.numberOfSpawn = 1;
     particleSetting.spawninIndex = 0;
 }
 
 void Emitter::createParameterGroups(){
+    
     originPG.setName("origin");
     originPG.add(originP.set("origin", ofVec3f(0, 0, 0) ,ofVec3f(-400, -400, -400), ofVec3f(400, 400, 400)));
     originPG.add(originSpreadP.set("originSpread", ofVec3f(1, 1, 1) ,ofVec3f(-300, -300, -300), ofVec3f(300, 300, 300)));
+    
     orientationPG.setName("orientation");
-    orientationPG.add(orientationP.set("orientation", ofVec3f(0.0, 0.0, 0.0) ,ofVec3f(-10, -10, -10), ofVec3f(10, 10, 10)));
-    orientationPG.add(orientationSpreadP.set("orientationSpread",ofVec3f(0.1, 0.1, 0.1) ,ofVec3f(0, 0, 0), ofVec3f(1, 1, 1)));
+    orientationPG.add(orientationP.set("orientation", ofVec3f(0.0, 0.0, 0.0) ,ofVec3f(-100, -100, -100), ofVec3f(100, 100, 100)));
+    orientationPG.add(orientationSpreadP.set("orientationSpread",ofVec3f(0.1, 0.1, 0.1) ,ofVec3f(0, 0, 0), ofVec3f(10, 10, 10)));
     accelerationPG.setName("acceleration");
-    accelerationPG.add(accelerationP.set("acceleration",ofVec3f(0, 0, 0) ,ofVec3f(-0.01, -0.01, -0.01), ofVec3f(0.01, 0.01, 0.01)));
-    accelerationPG.add(accelerationSpreadP.set("accelerationSpread", ofVec3f(0, 0, 0) ,ofVec3f(-0.01, -0.01, -0.01), ofVec3f(0.01, 0.01, 0.01)));
-    numSpawnP.set("numSpawn", 5, 0 ,10);
+    accelerationPG.add(accelerationP.set("acceleration",ofVec3f(0, 0, 0) ,ofVec3f(-0.1, -0.1, -0.1), ofVec3f(0.1, 0.1, 0.1)));
+    accelerationPG.add(accelerationSpreadP.set("accelerationSpread", ofVec3f(0, 0, 0) ,ofVec3f(-0.1, -0.1, -0.1), ofVec3f(0.1, 0.1, 0.1)));
+    numSpawnP.set("numSpawn", 1, 0 ,10);
+    
     emitterPG.setName("Emitter");
     emitterPG.add(originPG);
     emitterPG.add(orientationPG);
     emitterPG.add(accelerationPG);
+    emitterPG.add(numSpawnP);
 }
 
 void Emitter::setup(cl::Context *clContext, cl::Program *clProgram, cl::CommandQueue *clQueue){
@@ -116,11 +120,11 @@ void Emitter::setup(cl::Context *clContext, cl::Program *clProgram, cl::CommandQ
 
 void Emitter::update(void){
     updateFromParameters();
-    clQueue->enqueueWriteBuffer(*clParticleSettingBuffer ,CL_TRUE,0,sizeof(ParticleSetting), &particleSetting);
     
-    // let GPU to calculate the movement of particle
-    (*clUpdateKernelFunctor)(*clParticleBuffer, *clParticleSettingBuffer, *clParticleBufferGL, *clRandomTable);
-    
+    cl::Event event;
+    clQueue->enqueueWriteBuffer(*clParticleSettingBuffer ,CL_TRUE,0,sizeof(ParticleSetting), &particleSetting, NULL, &event);
+    (*clUpdateKernelFunctor)(*clParticleBuffer, *clParticleSettingBuffer, *clParticleBufferGL, *clRandomTable, NULL, &event);
+    event.wait();
     particleSetting.spawninIndex += particleSetting.numberOfSpawn;
     if (particleSetting.spawninIndex > NUM_PARTICLES) {
         particleSetting.spawninIndex %= NUM_PARTICLES;
@@ -154,6 +158,7 @@ void Emitter::updateFromParameters(){
 }
 
 void Emitter::draw(void){
+    
     glPointSize(20);
     dotsVBO.draw(GL_POINTS, 0, NUM_PARTICLES);
     glPointSize(1);
