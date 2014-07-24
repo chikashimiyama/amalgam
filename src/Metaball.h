@@ -19,6 +19,10 @@ class Metaball{
 private:
     int numValidIndicies;
 
+    /*** Shader ***/
+    ofShader shader;
+    
+    
     /*** OpenCL Buffers ***/
     IsoPoint isoPoints[NUM_ISO_POINTS]; // CPU
     cl::Buffer *clIsoPoints; // GPU -CL
@@ -31,10 +35,15 @@ private:
     ofFloatColor isoPointsColors[NUM_ISO_POINTS];
     ofVbo isoPointsVBO; // GPU - GL for test
     
-    ofVec3f triangleSurface[NUM_ISO_POINTS*3]; // CPU
+    ofVec3f triangleSurface[NUM_ISO_POINTS]; // CPU
+    ofVec3f triangleSurfaceNormal[NUM_ISO_POINTS];
+    
     cl::BufferGL *clTriangleSurfaceBufferGL; // GPU -CL
+    cl::BufferGL *clTriangleSurfaceNormalBufferGL;
+    
     ofVbo triangleSurfaceVBO; // GPU -GL
     
+    ofLight light;
     
     
     cl::Kernel *clKernelUpdateIsoPoints;

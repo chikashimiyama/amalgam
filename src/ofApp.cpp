@@ -25,6 +25,8 @@ void ofApp::setupGui(){
 
 void ofApp::setup(){
     
+    ofSetSmoothLighting(true);
+    
     cl_int err = CL_SUCCESS;
 
     // look for platform
@@ -90,6 +92,8 @@ void ofApp::setup(){
     metaball.setup(clContext, clProgram, clQueue);
     
     setupGui();
+    
+    texMaterial.setup();
     ofLog() << "setup finished";
 }
 
@@ -105,24 +109,20 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    ofBackground(0, 0, 0);
+
+    //texMaterial.customDraw();
+   
     camera.setPosition(300, 300, 600);
     camera.lookAt(ofVec3f(0,0,0));
     camera.setNearClip(0.01);
     camera.setFarClip(10000.0);
 
-    
     camera.begin();
-    ofSetColor(255, 255, 255);
-
-    emitter.draw();
-    
-    ofSetColor(255, 0, 0);
+    //emitter.draw();
     metaball.draw();
-    camera.end();
 
+    camera.end();
     panel.draw();
-//    ofLog() << ofGetFrameRate();
     
 }
 

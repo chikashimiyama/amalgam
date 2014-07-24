@@ -7,7 +7,7 @@
 #include "Emitter.h"
 #include "Metaball.h"
 #include "Constant.h"
-
+#include "TexMaterial.h"
 
 
 class ofApp : public ofBaseApp{
@@ -24,6 +24,7 @@ class ofApp : public ofBaseApp{
         cl::CommandQueue *clQueue;
     
         // gui
+        TexMaterial texMaterial;
         Emitter emitter;
         Metaball metaball;
         ofxPanel panel;

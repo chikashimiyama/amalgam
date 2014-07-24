@@ -55,6 +55,10 @@ void Metaball::createTriangleVbo(){
 
 void Metaball::setup(cl::Context *clContext, cl::Program *clProgram, cl::CommandQueue *clQueue){
     
+    shader.load("shaders/Phong");
+    
+    ofLog()<<"shader loaded";
+    
     // copy pointer to queue
     Metaball::clQueue = clQueue;
     
@@ -73,10 +77,14 @@ void Metaball::setup(cl::Context *clContext, cl::Program *clProgram, cl::Command
     
     //triangle vbo;
     createTriangleVbo();
-    triangleSurfaceVBO.setVertexData(triangleSurface, NUM_ISO_POINTS*3, GL_DYNAMIC_DRAW);
-    int vboId = triangleSurfaceVBO.getVertId();
-    clTriangleSurfaceBufferGL = new cl::BufferGL(*clContext, CL_MEM_READ_WRITE, vboId);
+    triangleSurfaceVBO.setVertexData(triangleSurface, NUM_ISO_POINTS, GL_DYNAMIC_READ);
+    triangleSurfaceVBO.setNormalData(triangleSurfaceNormal, NUM_ISO_POINTS, GL_DYNAMIC_READ);
     
+    int vboId = triangleSurfaceVBO.getVertId();
+    int vboNormalId = triangleSurfaceVBO.getNormalId();
+    clTriangleSurfaceBufferGL = new cl::BufferGL(*clContext, CL_MEM_READ_WRITE, vboId);
+    clTriangleSurfaceNormalBufferGL = new cl::BufferGL(*clContext, CL_MEM_READ_WRITE, vboNormalId);
+
     
     clKernelUpdateIsoPoints = new cl::Kernel(*clProgram, "updateIsoPoints");
     clUpdateIsoPointsFunctor = new cl::KernelFunctor(
@@ -92,6 +100,10 @@ void Metaball::setup(cl::Context *clContext, cl::Program *clProgram, cl::Command
                                                       cl::NDRange(RESOLUTION_MINUS_ONE, RESOLUTION_MINUS_ONE, RESOLUTION_MINUS_ONE),
                                                       cl::NullRange);
     
+
+    light.setup();
+
+
 }
 
 void Metaball::update(cl::BufferGL *clParticleBufferGL){
@@ -106,7 +118,7 @@ void Metaball::update(cl::BufferGL *clParticleBufferGL){
     (*clUpdateIsoPointsFunctor)(*clIsoPoints ,*clParticleBufferGL, &event);
     event.wait();
     
-    (*clCreateIsoSurfaceFunctor)(*clIsoPoints, *clTriangleSurfaceBufferGL, *clInspector, &event);
+    (*clCreateIsoSurfaceFunctor)(*clIsoPoints, *clTriangleSurfaceBufferGL, *clTriangleSurfaceNormalBufferGL, *clInspector, &event);
     event.wait();
     
     clQueue->enqueueReadBuffer(*clInspector ,CL_TRUE,0,sizeof(Inspector), &inspector, NULL, &event);
@@ -126,13 +138,28 @@ void Metaball::update(cl::BufferGL *clParticleBufferGL){
 }
 
 void Metaball::draw(){
-    glEnable(GL_DEPTH_TEST);
-    glPointSize(2);
-    ofSetColor(255, 255, 255);
-    triangleSurfaceVBO.draw(GL_TRIANGLES, 0, numValidIndicies/3);
-    glPointSize(1);
-    glDisable(GL_DEPTH_TEST);
+//    triangleSurfaceVBO.disableNormals();
 
+    ofSetColor(255,255,255);
+    
+    ofEnableLighting();
+    light.setPointLight();
+    light.setPosition(300, 400, 300);
+    light.enable();
+    
+//    shader.begin();
+//
+//    shader.setUniform4f("LightPoition", -300, 400, 500, 1);
+//    shader.setUniform3f("LightIntensity", 1.0, 1.0, 1.0);
+//    shader.setUniform3f("Kd", 1.0,1.0,1.0);
+//    shader.setUniform3f("Ka", 1.0,1.0,1.0);
+//    shader.setUniform3f("Ks", 1.0,1.0,1.0);
+
+    triangleSurfaceVBO.draw(GL_TRIANGLE_STRIP, 0, numValidIndicies/3);
+   // shader.end();
+    
+    light.disable();
+    ofDisableLighting();
     //isoPointsVBO.draw(GL_POINTS, 0, NUM_ISO_POINTS);
     
 }
