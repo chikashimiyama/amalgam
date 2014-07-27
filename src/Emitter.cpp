@@ -34,7 +34,7 @@ Emitter::~Emitter(){
 }
 
 void Emitter::createRandomTable(){
-    for (int i = 0; i < NUM_PARTICLES * 3; i++) {
+    for (int i = 0; i < SIZE_OF_RANDOM_TABLE; i++) {
         randomTable[i] = ofRandom(-1.0, 1.0);
     }
 }
@@ -59,35 +59,60 @@ void Emitter::initParticleSetting(){
     particleSetting.accelerationSpread[0] = 0.0;
     particleSetting.accelerationSpread[1] = 0.0;
     particleSetting.accelerationSpread[2] = 0.0;
+
+    particleSetting.turbulence[0] = 0.0;
+    particleSetting.turbulence[1] = 0.0;
+    particleSetting.turbulence[2] = 0.0;
+    particleSetting.tornade[0] = 0.0;
+    particleSetting.tornade[1] = 0.0;
+    particleSetting.tornade[2] = 0.0;
     
     particleSetting.lifeSpan[0] = 10000;
     particleSetting.lifeSpan[1] = 10000;
     particleSetting.numberOfSpawn = 1;
     particleSetting.spawninIndex = 0;
+    
+    
 }
 
 void Emitter::createParameterGroups(){
     
+    // emitter parameter group
     originPG.setName("origin");
     originPG.add(originP.set("origin", ofVec3f(0, 0, 0) ,ofVec3f(-400, -400, -400), ofVec3f(400, 400, 400)));
     originPG.add(originSpreadP.set("originSpread", ofVec3f(1, 1, 1) ,ofVec3f(-300, -300, -300), ofVec3f(300, 300, 300)));
     
     orientationPG.setName("orientation");
-    orientationPG.add(orientationP.set("orientation", ofVec3f(0.0, 0.0, 0.0) ,ofVec3f(-100, -100, -100), ofVec3f(100, 100, 100)));
+    orientationPG.add(orientationP.set("orientation", ofVec3f(0.0, 0.0, 0.0) ,ofVec3f(-10, -10, -10), ofVec3f(10, 10, 10)));
     orientationPG.add(orientationSpreadP.set("orientationSpread",ofVec3f(0.1, 0.1, 0.1) ,ofVec3f(0, 0, 0), ofVec3f(10, 10, 10)));
     accelerationPG.setName("acceleration");
-    accelerationPG.add(accelerationP.set("acceleration",ofVec3f(0, 0, 0) ,ofVec3f(-0.1, -0.1, -0.1), ofVec3f(0.1, 0.1, 0.1)));
-    accelerationPG.add(accelerationSpreadP.set("accelerationSpread", ofVec3f(0, 0, 0) ,ofVec3f(-0.1, -0.1, -0.1), ofVec3f(0.1, 0.1, 0.1)));
+    accelerationPG.add(accelerationP.set("acceleration",ofVec3f(0, 0, 0) ,ofVec3f(-1, -1, -1), ofVec3f(1, 1, 1)));
+    accelerationPG.add(accelerationSpreadP.set("accelerationSpread", ofVec3f(0, 0, 0) ,ofVec3f(-1, -1, -1), ofVec3f(1, 1, 1)));
     numSpawnP.set("numSpawn", 1, 0 ,10);
+    isoAttenuationP.set("iso attenuation", 1.0, 0.0, 2.0);
     
     emitterPG.setName("Emitter");
     emitterPG.add(originPG);
     emitterPG.add(orientationPG);
     emitterPG.add(accelerationPG);
     emitterPG.add(numSpawnP);
+    emitterPG.add(isoAttenuationP);
+    
+    // force parameter group
+    turbulenceP.set("turbulance", ofVec3f(0, 0, 0), ofVec3f(0, 0,  0), ofVec3f(100,100,100));
+    tornadeP.set("tornade", ofVec3f(0, 0, 0), ofVec3f(-20, -20, -20), ofVec3f(20,20,20));
+
+    
+    forcePG.setName("Force");
+    forcePG.add(turbulenceP);
+    forcePG.add(tornadeP);
+    
 }
 
 void Emitter::setup(cl::Context *clContext, cl::Program *clProgram, cl::CommandQueue *clQueue){
+    
+
+    
     Emitter::clQueue = clQueue;
     clParticleBuffer = new cl::Buffer(*clContext,CL_MEM_READ_WRITE,sizeof(Particle)*NUM_PARTICLES);
     clQueue->enqueueWriteBuffer(
@@ -109,21 +134,17 @@ void Emitter::setup(cl::Context *clContext, cl::Program *clProgram, cl::CommandQ
     clParticleBufferGL = new cl::BufferGL(*clContext, CL_MEM_READ_WRITE, vboId);
     
     ofLog() << "create random Table";
-    clRandomTable = new cl::Buffer(*clContext,CL_MEM_READ_WRITE,sizeof(float) * NUM_PARTICLES * 3);
+    clRandomTable = new cl::Buffer(*clContext,CL_MEM_WRITE_ONLY,sizeof(float) * SIZE_OF_RANDOM_TABLE);
     createRandomTable();
-    clQueue->enqueueWriteBuffer(
-                                *clRandomTable ,CL_TRUE,0,
-                                sizeof(float) * NUM_PARTICLES * 3 , randomTable);
-    
-    
+    clQueue->enqueueWriteBuffer(*clRandomTable ,CL_TRUE,0,sizeof(float) * SIZE_OF_RANDOM_TABLE, randomTable);
 }
 
 void Emitter::update(void){
     updateFromParameters();
-    
+    int randomSeed = static_cast<int>(ofRandom(SIZE_OF_RANDOM_TABLE));
     cl::Event event;
     clQueue->enqueueWriteBuffer(*clParticleSettingBuffer ,CL_TRUE,0,sizeof(ParticleSetting), &particleSetting, NULL, &event);
-    (*clUpdateKernelFunctor)(*clParticleBuffer, *clParticleSettingBuffer, *clParticleBufferGL, *clRandomTable, NULL, &event);
+    (*clUpdateKernelFunctor)(*clParticleBuffer, *clParticleSettingBuffer, *clParticleBufferGL, *clRandomTable, randomSeed, NULL, &event);
     event.wait();
     particleSetting.spawninIndex += particleSetting.numberOfSpawn;
     if (particleSetting.spawninIndex > NUM_PARTICLES) {
@@ -154,6 +175,13 @@ void Emitter::updateFromParameters(){
         particleSetting.accelerationSpread[1] = accelerationSpreadP.get().y;
         particleSetting.accelerationSpread[2] = accelerationSpreadP.get().z;
     
+        particleSetting.turbulence[0] = turbulenceP.get().x;
+        particleSetting.turbulence[1] = turbulenceP.get().y;
+        particleSetting.turbulence[2] = turbulenceP.get().z;
+    
+        particleSetting.tornade[0] = tornadeP.get().x;
+        particleSetting.tornade[1] = tornadeP.get().y;
+        particleSetting.tornade[2] = tornadeP.get().z;
         particleSetting.numberOfSpawn = numSpawnP.get();
 }
 

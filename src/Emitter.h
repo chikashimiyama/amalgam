@@ -18,7 +18,7 @@
 
 class Emitter{
 private:
-    float randomTable[NUM_PARTICLES * 3];
+    float randomTable[SIZE_OF_RANDOM_TABLE];
 
     cl::CommandQueue *clQueue;
     cl::KernelFunctor *clUpdateKernelFunctor;
@@ -50,19 +50,32 @@ private:
     ofParameter<ofVec3f> orientationP, orientationSpreadP;
     ofParameter<ofVec3f> accelerationP, accelerationSpreadP;
     ofParameter<int> numSpawnP;
+    ofParameter<float> isoAttenuationP;
+    
+    ofParameterGroup forcePG;
+    ofParameter<ofVec3f> tornadeP;
+    ofParameter<ofVec3f> turbulenceP;
+    
     
 public:
     ~Emitter();
     void setup(cl::Context *clContext, cl::Program *clProgram, cl::CommandQueue *clQueue);
     void update();
     void draw();
-    ofParameterGroup getParameterGroup();
+
+    ofParameterGroup getEmitterParameterGroup();
+    ofParameterGroup getForceParameterGroup();
+
     cl::BufferGL *getParticleBufferGL();
 
 };
 
-inline ofParameterGroup Emitter::getParameterGroup(){
+inline ofParameterGroup Emitter::getEmitterParameterGroup(){
     return emitterPG;
+}
+
+inline ofParameterGroup Emitter::getForceParameterGroup(){
+    return forcePG;
 }
 
 inline cl::BufferGL *Emitter::getParticleBufferGL(){

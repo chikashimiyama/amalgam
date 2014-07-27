@@ -25,10 +25,12 @@ struct ParticleSetting{
     cl_float orientationSpread[3];
     cl_float acceleration[3];
     cl_float accelerationSpread[3];
+    cl_float turbulence[3];
+    cl_float tornade[3];
     cl_uint lifeSpan[2];
     cl_uint numberOfSpawn;
     cl_uint spawninIndex;
-    cl_int dummy[10];
+    cl_int dummy[4];
 };
 
 typedef struct IsoPoint{
@@ -45,7 +47,7 @@ typedef struct IsoPoint{
 
 typedef struct Inspector{
     cl_int numberOfValidCubes;
-    cl_int numberOfValidIndicies;
+    cl_int numberOfValidPoints;
     cl_int dummy[2];
 } Inspector;
 

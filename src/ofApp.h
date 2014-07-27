@@ -13,7 +13,6 @@
 class ofApp : public ofBaseApp{
     private:
         void initParticleSetting();
-        void createRandomTable();
         void setupGui();
         // GL
         ofCamera camera;
@@ -27,7 +26,11 @@ class ofApp : public ofBaseApp{
         TexMaterial texMaterial;
         Emitter emitter;
         Metaball metaball;
+
         ofxPanel panel;
+    
+        bool panelFlag;
+    bool emitterFlag;
 
 	public:
         ~ofApp();

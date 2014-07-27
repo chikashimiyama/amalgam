@@ -9,6 +9,7 @@
 #ifndef amalgam_Constant_h
 #define amalgam_Constant_h
 
+#define SIZE_OF_RANDOM_TABLE 8192
 #define NUM_PARTICLES 32
 #define BOX_SIZE 860
 #define RESOLUTION 43

@@ -20,7 +20,9 @@ ofApp::~ofApp(){
 void ofApp::setupGui(){
     
     panel.setup("Parameters");
-    panel.add(emitter.getParameterGroup());
+    panel.add(emitter.getEmitterParameterGroup());
+    panel.add(emitter.getForceParameterGroup());
+
 }
 
 void ofApp::setup(){
@@ -92,8 +94,10 @@ void ofApp::setup(){
     metaball.setup(clContext, clProgram, clQueue);
     
     setupGui();
+    panelFlag = true;
     
     texMaterial.setup();
+
     ofLog() << "setup finished";
 }
 
@@ -118,17 +122,35 @@ void ofApp::draw(){
     camera.setFarClip(10000.0);
 
     camera.begin();
-    //emitter.draw();
+    if(emitterFlag){
+        emitter.draw();
+    }
+    glDisable(GL_COLOR_MATERIAL);
     metaball.draw();
 
     camera.end();
-    panel.draw();
-    
+    if(panelFlag){
+        panel.draw();
+    }
 }
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
 
+    switch(key){
+        case 'p':
+            panelFlag = !panelFlag;
+            break;
+        case 'm':
+            metaball.toggleMetaballFlag();
+            break;
+        case 'i':
+            metaball.toggleIsoPointsFlag();
+            break;
+        case 'e':
+            emitterFlag = !emitterFlag;
+    }
+    
 }
 
 //--------------------------------------------------------------

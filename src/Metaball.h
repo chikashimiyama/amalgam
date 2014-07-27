@@ -17,7 +17,8 @@
 class Metaball{
     
 private:
-    int numValidIndicies;
+    int numValidPoints;
+    ofTexture tex;
 
     /*** Shader ***/
     ofShader shader;
@@ -37,9 +38,11 @@ private:
     
     ofVec3f triangleSurface[NUM_ISO_POINTS]; // CPU
     ofVec3f triangleSurfaceNormal[NUM_ISO_POINTS];
-    
+    ofVec2f triangleSurfaceTexture[NUM_ISO_POINTS];
+
     cl::BufferGL *clTriangleSurfaceBufferGL; // GPU -CL
     cl::BufferGL *clTriangleSurfaceNormalBufferGL;
+    cl::BufferGL *clTriangleSurfaceTextureBufferGL;
     
     ofVbo triangleSurfaceVBO; // GPU -GL
     
@@ -59,6 +62,9 @@ private:
     void createMatrix();
     void createTriangleVbo();
 
+    bool metaballFlag;
+    bool isoPointsFlag;
+    ofMaterial material;
     
 public:
     ~Metaball();
@@ -66,5 +72,7 @@ public:
     void update(cl::BufferGL *clParticleBufferGL);
     void draw();
     
+    void toggleMetaballFlag();
+    void toggleIsoPointsFlag();
 };
 #endif /* defined(__amalgam__Metaball__) */
