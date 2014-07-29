@@ -53,14 +53,44 @@ void Metaball::createTriangleVbo(){
 //    }
 }
 
+ofMatrix3x3 Metaball::reduceMatrixFrom4to3(ofMatrix4x4 mat4){
+    ofMatrix3x3 mat3;
+    float *rawPtr = mat4.getPtr();
+    mat3.a = rawPtr[0];
+    mat3.b = rawPtr[1];
+    mat3.c = rawPtr[2];
+    mat3.d = rawPtr[4];
+    mat3.e = rawPtr[5];
+    mat3.f = rawPtr[6];
+    mat3.g = rawPtr[8];
+    mat3.h = rawPtr[9];
+    mat3.i = rawPtr[10];
+    return mat3;
+}
+
+void Metaball::sceneSetting(){
+    modelMatrix.makeIdentityMatrix();
+    
+    ofVec3f eyePosition = ofVec3f(0.0, 200.0, 800.0);
+    ofVec3f lookAt = ofVec3f(0.0, 0.0, 0.0);
+    
+    viewMatrix.makeLookAtViewMatrix(eyePosition, lookAt, ofVec3f(0.0, 1.0, 0.0));
+    projectionMatrix.makePerspectiveMatrix(60, 1.3333, 0.1, 10000);
+    
+    modelViewMatrix = modelMatrix * viewMatrix;
+    MVP = modelMatrix * viewMatrix * projectionMatrix;
+
+    normalMatrix = reduceMatrixFrom4to3(modelViewMatrix);
+
+    lightPosition = ofVec4f(500.0, 200.0, -400, 1.0);
+    lightPosition = lightPosition * viewMatrix; // eye coordinate
+}
+
 void Metaball::setup(cl::Context *clContext, cl::Program *clProgram, cl::CommandQueue *clQueue){
     
-    ofImage image;
-    image.loadImage("metal.jpg");
-    tex.loadData(image.getPixels(), 1600, 1153, GL_RGB);
     
-    //shader.load("shaders/Phong");
-    
+    sceneSetting();
+    shader.load("shaders/Phong");
     
     // copy pointer to queue
     Metaball::clQueue = clQueue;
@@ -81,14 +111,11 @@ void Metaball::setup(cl::Context *clContext, cl::Program *clProgram, cl::Command
     createTriangleVbo();
     triangleSurfaceVBO.setVertexData(triangleSurface, NUM_ISO_POINTS, GL_DYNAMIC_READ);
     triangleSurfaceVBO.setNormalData(triangleSurfaceNormal, NUM_ISO_POINTS, GL_DYNAMIC_READ);
-    triangleSurfaceVBO.setTexCoordData(triangleSurfaceTexture, NUM_ISO_POINTS, GL_STATIC_READ);
 
     int vboId = triangleSurfaceVBO.getVertId();
     int vboNormalId = triangleSurfaceVBO.getNormalId();
-    int vboTexId = triangleSurfaceVBO.getTexCoordId();
     clTriangleSurfaceBufferGL = new cl::BufferGL(*clContext, CL_MEM_READ_WRITE, vboId);
     clTriangleSurfaceNormalBufferGL = new cl::BufferGL(*clContext, CL_MEM_READ_WRITE, vboNormalId);
-    clTriangleSurfaceTextureBufferGL = new cl::BufferGL(*clContext, CL_MEM_READ_WRITE, vboTexId);
     
     clKernelUpdateIsoPoints = new cl::Kernel(*clProgram, "updateIsoPoints");
     clUpdateIsoPointsFunctor = new cl::KernelFunctor(
@@ -105,8 +132,6 @@ void Metaball::setup(cl::Context *clContext, cl::Program *clProgram, cl::Command
                                                       cl::NullRange);
     
 
-    material.setDiffuseColor(ofColor(255, 255,0));
-    light.setup();
     isoPointsFlag = false;
     metaballFlag = true;
 
@@ -127,7 +152,6 @@ void Metaball::update(cl::BufferGL *clParticleBufferGL){
     (*clCreateIsoSurfaceFunctor)(*clIsoPoints,
                                  *clTriangleSurfaceBufferGL,
                                  *clTriangleSurfaceNormalBufferGL,
-                                 *clTriangleSurfaceTextureBufferGL,
                                  *clInspector, &event);
     event.wait();
     
@@ -136,54 +160,52 @@ void Metaball::update(cl::BufferGL *clParticleBufferGL){
     numValidPoints = inspector.numberOfValidPoints;
 
     if(isoPointsFlag){
-    // copy vram to ram
-    clQueue->enqueueReadBuffer(*clIsoPoints ,CL_TRUE,0,sizeof(IsoPoint) * NUM_ISO_POINTS, isoPoints, NULL, &event);
-    event.wait();
-    //ofLog() << "number of valid cubes: " << inspector.numberOfValidCubes << " number of valid indicies: " << numValidIndicies;
-    // isoValue to color
+        // copy vram to ram
+        clQueue->enqueueReadBuffer(*clIsoPoints ,CL_TRUE,0,sizeof(IsoPoint) * NUM_ISO_POINTS, isoPoints, NULL, &event);
+        event.wait();
+        //ofLog() << "number of valid cubes: " << inspector.numberOfValidCubes << " number of valid indicies: " << numValidIndicies;
+        // isoValue to color
         for (int i = 0; i < NUM_ISO_POINTS; i++) {
             isoPointsColors[i].r = isoPoints[i].isoValue * 1000.0;
         }
-    isoPointsVBO.updateColorData(isoPointsColors, NUM_ISO_POINTS);
+        isoPointsVBO.updateColorData(isoPointsColors, NUM_ISO_POINTS);
     }
 }
 
 void Metaball::draw(){
-//    glDisable(GL_COLOR_MATERIAL);
-    ofSetColor(ofColor(255,255,255));
-    triangleSurfaceVBO.disableColors();
-    light.setPointLight();
-    light.setDiffuseColor(ofColor(200.f, 200.f, 200.f));
-    light.setPosition(500, 500, 500);
-    
-   ofEnableLighting();
-   light.enable();
-   material.begin();
-//    shader.begin();
-//
-//    shader.setUniform4f("LightPoition", -300, 400, 500, 1);
-//    shader.setUniform3f("LightIntensity", 1.0, 1.0, 1.0);
-//    shader.setUniform3f("Kd", 1.0,1.0,1.0);
-//    shader.setUniform3f("Ka", 1.0,1.0,1.0);
-//    shader.setUniform3f("Ks", 1.0,1.0,1.0);
-
-//   ofDrawSphere(0, 0, 130);
 
     if(metaballFlag){
-        material.begin();
-        material.setAmbientColor(ofFloatColor(1.0, 0.5, 0.3 , 1.0));
-        material.setDiffuseColor(ofFloatColor(1.0, 1.0, 0.3 , 1.0));
         glEnable(GL_DEPTH_TEST);
-        tex.bind();
-        triangleSurfaceVBO.draw(GL_TRIANGLES, 0, numValidPoints);
+        shader.begin();
+            shader.setUniform4fv("LightPosition", lightPosition.getPtr());
+            shader.setUniform3f("Kd", 1.0, 1.0, 1.0);
+            shader.setUniform3f("Ld", 1.0, 1.0, 1.0);
+
+            shader.setUniformMatrix4f("ModelViewMatrix",modelViewMatrix);
+            shader.setUniformMatrix4f("ProjectionMatrix",projectionMatrix);
+        
+            // currently not implement in oF
+            GLuint prog = shader.getProgram();
+            int loc = glGetUniformLocation(prog, "NormalMatrix");
+            if(loc < 0){
+                ofLog() << "no such uniform, NormalMatrix";
+            }else{
+                float rawMatrix[9] =
+                {   normalMatrix.a, normalMatrix.b, normalMatrix.c,
+                    normalMatrix.d, normalMatrix.e, normalMatrix.f,
+                    normalMatrix.g, normalMatrix.h, normalMatrix.i};
+                glUniformMatrix3fv(loc, 1, GL_FALSE, rawMatrix);
+            }
+            // end dirty code
+        
+        
+            shader.setUniformMatrix4f("MVP", MVP);
+        
+            triangleSurfaceVBO.draw(GL_TRIANGLE_STRIP, 0, numValidPoints);
+
+        shader.end();
         glDisable(GL_DEPTH_TEST);
-        tex.unbind();
-        material.end();
     }
-   // shader.end();
-    material.end();
-    light.disable();
-    ofDisableLighting();
     
     if(isoPointsFlag){
         isoPointsVBO.draw(GL_POINTS, 0, NUM_ISO_POINTS);

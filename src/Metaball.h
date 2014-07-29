@@ -18,10 +18,19 @@ class Metaball{
     
 private:
     int numValidPoints;
-    ofTexture tex;
 
     /*** Shader ***/
     ofShader shader;
+    
+    ofVec3f lightPosition;
+    ofMatrix4x4 modelMatrix;
+    ofMatrix4x4 viewMatrix;
+    ofMatrix4x4 projectionMatrix;
+
+    ofMatrix4x4 modelViewMatrix;
+    ofMatrix4x4 MVP;
+
+    ofMatrix3x3 normalMatrix;
     
     
     /*** OpenCL Buffers ***/
@@ -60,8 +69,9 @@ private:
     cl::CommandQueue *clQueue;
     int getPointPos(int x, int y, int z);
     void createMatrix();
+    void sceneSetting();
     void createTriangleVbo();
-
+    ofMatrix3x3 reduceMatrixFrom4to3(ofMatrix4x4 mat4);
     bool metaballFlag;
     bool isoPointsFlag;
     ofMaterial material;
