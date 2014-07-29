@@ -70,7 +70,6 @@ private:
     int getPointPos(int x, int y, int z);
     void createMatrix();
     void sceneSetting();
-    void createTriangleVbo();
     ofMatrix3x3 reduceMatrixFrom4to3(ofMatrix4x4 mat4);
     bool metaballFlag;
     bool isoPointsFlag;

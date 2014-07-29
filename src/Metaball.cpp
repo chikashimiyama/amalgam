@@ -44,14 +44,7 @@ void Metaball::createMatrix(){
     }
 }
 
-void Metaball::createTriangleVbo(){
-//    int ct = 0;
-//    for(int i =0;i<NUM_ISO_POINTS;i++){
-//        triangleSurface[i].x = 10.0;
-//        triangleSurface[i].y = 20.0;
-//        triangleSurface[i].z = 3.0;
-//    }
-}
+
 
 ofMatrix3x3 Metaball::reduceMatrixFrom4to3(ofMatrix4x4 mat4){
     ofMatrix3x3 mat3;
@@ -82,7 +75,7 @@ void Metaball::sceneSetting(){
 
     normalMatrix = reduceMatrixFrom4to3(modelViewMatrix);
 
-    lightPosition = ofVec4f(500.0, 200.0, -400, 1.0);
+    lightPosition = ofVec4f(10.0, 200.0, 700, 1.0);
     lightPosition = lightPosition * viewMatrix; // eye coordinate
 }
 
@@ -108,7 +101,6 @@ void Metaball::setup(cl::Context *clContext, cl::Program *clProgram, cl::Command
     isoPointsVBO.setColorData(isoPointsColors, NUM_ISO_POINTS, GL_DYNAMIC_DRAW);
     
     //triangle vbo;
-    createTriangleVbo();
     triangleSurfaceVBO.setVertexData(triangleSurface, NUM_ISO_POINTS, GL_DYNAMIC_READ);
     triangleSurfaceVBO.setNormalData(triangleSurfaceNormal, NUM_ISO_POINTS, GL_DYNAMIC_READ);
 
@@ -196,12 +188,8 @@ void Metaball::draw(){
                     normalMatrix.g, normalMatrix.h, normalMatrix.i};
                 glUniformMatrix3fv(loc, 1, GL_FALSE, rawMatrix);
             }
-            // end dirty code
-        
-        
             shader.setUniformMatrix4f("MVP", MVP);
-        
-            triangleSurfaceVBO.draw(GL_TRIANGLE_STRIP, 0, numValidPoints);
+            triangleSurfaceVBO.draw(GL_TRIANGLES, 0, numValidPoints);
 
         shader.end();
         glDisable(GL_DEPTH_TEST);
