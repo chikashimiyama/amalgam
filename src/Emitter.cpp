@@ -63,9 +63,7 @@ void Emitter::initParticleSetting(){
     particleSetting.turbulence[0] = 0.0;
     particleSetting.turbulence[1] = 0.0;
     particleSetting.turbulence[2] = 0.0;
-    particleSetting.tornade[0] = 0.0;
-    particleSetting.tornade[1] = 0.0;
-    particleSetting.tornade[2] = 0.0;
+
     
     particleSetting.lifeSpan[0] = 10000;
     particleSetting.lifeSpan[1] = 10000;
@@ -178,10 +176,7 @@ void Emitter::updateFromParameters(){
         particleSetting.turbulence[0] = turbulenceP.get().x;
         particleSetting.turbulence[1] = turbulenceP.get().y;
         particleSetting.turbulence[2] = turbulenceP.get().z;
-    
-        particleSetting.tornade[0] = tornadeP.get().x;
-        particleSetting.tornade[1] = tornadeP.get().y;
-        particleSetting.tornade[2] = tornadeP.get().z;
+  
         particleSetting.numberOfSpawn = numSpawnP.get();
 }
 
