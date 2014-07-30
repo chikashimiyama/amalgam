@@ -26,9 +26,9 @@ void main()
     vec3 diffuse  = Ld * Kd * sDotN;
     vec3 spec = vec3(0.0);
     if(sDotN > 0.0){
-        vec3 mSpec = vec3(1.0, 1.0, 1.0);
-        spec = mSpec * pow( max( dot(r,v), 0.0 ), 10.0);
+        vec3 mSpec = vec3(1, 1, 1);
+        spec = mSpec * pow( max( dot(r,v), 0.0 ), 10);
     }
-    LightIntensity = diffuse + spec;
+    LightIntensity = diffuse + spec + vec3(0.3,0.3,0.3);
     gl_Position = MVP * vec4(VertexPosition,1.0);
 }

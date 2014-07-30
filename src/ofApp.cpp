@@ -39,7 +39,7 @@ void ofApp::setupScene(){
     
     normalMatrix = reduceMatrixFrom4to3(modelViewMatrix);
     
-    lightPosition = ofVec4f(10.0, 200.0, 700, 1.0);
+    lightPosition = ofVec4f(500.0, 700.0, 700, 1.0);
     lightPosition = lightPosition * viewMatrix; // eye coordinate
 }
 
@@ -132,7 +132,7 @@ void ofApp::update(){
     //shader update
     shader.begin();
     shader.setUniform4fv("LightPosition", lightPosition.getPtr());
-    shader.setUniform3f("Kd", 1.0, 1.0, 1.0);
+    shader.setUniform3f("Kd", 0.5, 0.5, 0.5);
     shader.setUniform3f("Ld", 1.0, 1.0, 1.0);
     shader.setUniformMatrix4f("ModelViewMatrix",modelViewMatrix);
     shader.setUniformMatrix4f("ProjectionMatrix",projectionMatrix);
