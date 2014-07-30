@@ -13,37 +13,40 @@
 #include "cl.hpp"
 #include "Particle.h"
 #include "Constant.h"
-
+#include "SceneComponent.h"
 #endif /* defined(__amalgam__Emitter__) */
 
-class Emitter{
+class Emitter : public SceneComponent {
 private:
-    float randomTable[SIZE_OF_RANDOM_TABLE];
 
-    cl::CommandQueue *clQueue;
-    cl::KernelFunctor *clUpdateKernelFunctor;
+#pragma mark randomTable
+    float randomTable[SIZE_OF_RANDOM_TABLE];
     
-    // buffers
+#pragma mark particleBuffers
     cl::Buffer *clParticleBuffer; // GPU
     Particle particleBuffer[NUM_PARTICLES]; // CPU
     
     cl::Buffer *clParticleSettingBuffer; // GPU
     ParticleSetting particleSetting; // CPU
-    
+
     cl::BufferGL *clParticleBufferGL; // GPU -CL
     ofVbo dotsVBO; // GPU -GL
     ofVec3f dots[NUM_PARTICLES]; // CPU
-    
+
+#pragma mark openCL
+    cl::CommandQueue *clQueue;
+    cl::KernelFunctor *clUpdateKernelFunctor;
+
     cl::Buffer *clRandomTable;
     cl::Kernel *clKernel;
 
-    // utility function
-    void initParticleSetting();
+#pragma mark utility
+    void setupParticleSetting();
     void createRandomTable();
     void createParameterGroups();
     void updateFromParameters();
     
-    // parameters
+#pragma mark parameters
     ofParameterGroup emitterPG;
     ofParameterGroup originPG, orientationPG, accelerationPG;
     ofParameter<ofVec3f> originP, originSpreadP;
@@ -53,9 +56,7 @@ private:
     ofParameter<float> isoAttenuationP;
     
     ofParameterGroup forcePG;
-    ofParameter<ofVec3f> tornadeP;
     ofParameter<ofVec3f> turbulenceP;
-    
     
 public:
     ~Emitter();
@@ -65,7 +66,6 @@ public:
 
     ofParameterGroup getEmitterParameterGroup();
     ofParameterGroup getForceParameterGroup();
-
     cl::BufferGL *getParticleBufferGL();
 
 };

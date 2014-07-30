@@ -13,75 +13,43 @@
 #include "cl.hpp"
 #include "Particle.h"
 #include "Constant.h"
+#include "SceneComponent.h"
 
-class Metaball{
+class Metaball : public SceneComponent {
     
 private:
-    int numValidPoints;
 
-    /*** Shader ***/
-    ofShader shader;
-    
-    ofVec3f lightPosition;
-    ofMatrix4x4 modelMatrix;
-    ofMatrix4x4 viewMatrix;
-    ofMatrix4x4 projectionMatrix;
-
-    ofMatrix4x4 modelViewMatrix;
-    ofMatrix4x4 MVP;
-
-    ofMatrix3x3 normalMatrix;
-    
-    
-    /*** OpenCL Buffers ***/
-    IsoPoint isoPoints[NUM_ISO_POINTS]; // CPU
-    cl::Buffer *clIsoPoints; // GPU -CL
-    
+#pragma mark Inspector
     Inspector inspector;
     cl::Buffer *clInspector;
+    int numValidPoints;
     
-    // for debugging
-    ofVec3f isoPointsVerticies[NUM_ISO_POINTS];
-    ofFloatColor isoPointsColors[NUM_ISO_POINTS];
-    ofVbo isoPointsVBO; // GPU - GL for test
-    
-    ofVec3f triangleSurface[NUM_ISO_POINTS]; // CPU
-    ofVec3f triangleSurfaceNormal[NUM_ISO_POINTS];
-    ofVec2f triangleSurfaceTexture[NUM_ISO_POINTS];
-
-    cl::BufferGL *clTriangleSurfaceBufferGL; // GPU -CL
-    cl::BufferGL *clTriangleSurfaceNormalBufferGL;
-    cl::BufferGL *clTriangleSurfaceTextureBufferGL;
-    
+#pragma mark VBO
     ofVbo triangleSurfaceVBO; // GPU -GL
-    
-    ofLight light;
-    
-    
-    cl::Kernel *clKernelUpdateIsoPoints;
-    cl::KernelFunctor *clUpdateIsoPointsFunctor;
-    
+
+#pragma mark Vertex
+    ofVec3f triangleSurface[NUM_ISO_POINTS]; // CPU
+    cl::BufferGL *clTriangleSurfaceBufferGL; // GPU -CL
+
+#pragma mark Normal
+    ofVec3f triangleSurfaceNormal[NUM_ISO_POINTS]; // CPU
+    cl::BufferGL *clTriangleSurfaceNormalBufferGL; // GPU - CL
+
+#pragma mark Kernels
     cl::Kernel *clKernelCreateIsoSurface;
     cl::KernelFunctor *clCreateIsoSurfaceFunctor;
 
-    
-    
+#pragma mark CL Queue
     cl::CommandQueue *clQueue;
+    
+#pragma mark utility
     int getPointPos(int x, int y, int z);
-    void createMatrix();
     void sceneSetting();
-    ofMatrix3x3 reduceMatrixFrom4to3(ofMatrix4x4 mat4);
-    bool metaballFlag;
-    bool isoPointsFlag;
-    ofMaterial material;
     
 public:
     ~Metaball();
     void setup(cl::Context *clContext, cl::Program *clProgram, cl::CommandQueue *clQueue);
-    void update(cl::BufferGL *clParticleBufferGL);
+    void update(cl::BufferGL *clParticleBufferGL, cl::Buffer *clIsoPoints);
     void draw();
-    
-    void toggleMetaballFlag();
-    void toggleIsoPointsFlag();
 };
 #endif /* defined(__amalgam__Metaball__) */

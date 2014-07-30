@@ -18,19 +18,34 @@ ofApp::~ofApp(){
 }
 
 void ofApp::setupGui(){
-    
     panel.setup("Parameters");
     panel.add(emitter.getEmitterParameterGroup());
     panel.add(emitter.getForceParameterGroup());
-
 }
 
-void ofApp::setup(){
-    
-    ofSetSmoothLighting(true);
-    
-    cl_int err = CL_SUCCESS;
 
+void ofApp::setupScene(){
+    
+    modelMatrix.makeIdentityMatrix();
+    
+    ofVec3f eyePosition = ofVec3f(0.0, 200.0, 800.0);
+    ofVec3f lookAt = ofVec3f(0.0, 0.0, 0.0);
+    
+    viewMatrix.makeLookAtViewMatrix(eyePosition, lookAt, ofVec3f(0.0, 1.0, 0.0));
+    projectionMatrix.makePerspectiveMatrix(60, 1.3333, 0.1, 10000);
+    
+    modelViewMatrix = modelMatrix * viewMatrix;
+    MVP = modelMatrix * viewMatrix * projectionMatrix;
+    
+    normalMatrix = reduceMatrixFrom4to3(modelViewMatrix);
+    
+    lightPosition = ofVec4f(10.0, 200.0, 700, 1.0);
+    lightPosition = lightPosition * viewMatrix; // eye coordinate
+}
+
+void ofApp::setupCL(){
+    cl_int err = CL_SUCCESS;
+    
     // look for platform
     ofLog() << "get list of platorms";
     std::vector<cl::Platform> plats;
@@ -74,7 +89,6 @@ void ofApp::setup(){
     delete maxWorkItemSizes;
     
     // open CL file
-    ofLog() << "load CL program";
     ofFile clFile;
     clFile.open(ofToDataPath("amalgam.cl"));
     ofBuffer clSource = clFile.readToBuffer();
@@ -82,22 +96,27 @@ void ofApp::setup(){
     cl::Program::Sources source(1, std::make_pair(srcString.c_str(),srcString.size()));
     clProgram = new cl::Program(*clContext, source);
     if(clProgram->build(devices) != CL_SUCCESS){
-        ofLog() << " Error building: "<<clProgram->getBuildInfo<CL_PROGRAM_BUILD_LOG>(default_device);
         abort();
     }
-    ofLog() << "CL program successfuly built";
-    
     clQueue = new cl::CommandQueue(*clContext,default_device);
     
-    //gui
-    emitter.setup(clContext, clProgram, clQueue);
-    metaball.setup(clContext, clProgram, clQueue);
-    
-    setupGui();
+}
+
+void ofApp::setupShader(){
+    shader.load("shaders/Phong");
+}
+
+void ofApp::setup(){
     panelFlag = true;
     
-    texMaterial.setup();
-
+    setupCL();
+    emitter.setup(clContext, clProgram, clQueue);
+    isoPoints.setup(clContext, clProgram, clQueue);
+    metaball.setup(clContext, clProgram, clQueue);
+    setupScene();
+    setupGui();
+    setupShader();
+    
     ofLog() << "setup finished";
 }
 
@@ -107,31 +126,44 @@ void ofApp::setup(){
 void ofApp::update(){
     
     emitter.update();
-    metaball.update(emitter.getParticleBufferGL());
-    
+    isoPoints.update(emitter.getParticleBufferGL());
+    metaball.update(emitter.getParticleBufferGL(), isoPoints.getIsoPointsBuffer());
+
+    //shader update
+    shader.begin();
+    shader.setUniform4fv("LightPosition", lightPosition.getPtr());
+    shader.setUniform3f("Kd", 1.0, 1.0, 1.0);
+    shader.setUniform3f("Ld", 1.0, 1.0, 1.0);
+    shader.setUniformMatrix4f("ModelViewMatrix",modelViewMatrix);
+    shader.setUniformMatrix4f("ProjectionMatrix",projectionMatrix);
+    GLuint prog = shader.getProgram();
+    int loc = glGetUniformLocation(prog, "NormalMatrix");
+    if(loc < 0){
+        ofLog() << "no such uniform, NormalMatrix";
+    }else{
+        float rawMatrix[9] =
+        {   normalMatrix.a, normalMatrix.b, normalMatrix.c,
+            normalMatrix.d, normalMatrix.e, normalMatrix.f,
+            normalMatrix.g, normalMatrix.h, normalMatrix.i};
+        glUniformMatrix3fv(loc, 1, GL_FALSE, rawMatrix);
+    }
+    shader.setUniformMatrix4f("MVP", MVP);
+    shader.end();
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
 
-    //texMaterial.customDraw();
-   
-    camera.setPosition(300, 300, 600);
-    camera.lookAt(ofVec3f(0,0,0));
-    camera.setNearClip(0.01);
-    camera.setFarClip(10000.0);
-
-    camera.begin();
-    if(emitterFlag){
+    ofClear(0); // why should I do it manually? 
+    ofEnableDepthTest();
+    shader.begin();
         emitter.draw();
-    }
-    glDisable(GL_COLOR_MATERIAL);
-    metaball.draw();
-
-    camera.end();
-    if(panelFlag){
-        panel.draw();
-    }
+        metaball.draw();
+        isoPoints.draw();
+        shader.end();
+    ofDisableDepthTest();
+    
+    if(panelFlag) panel.draw();
 }
 
 //--------------------------------------------------------------
@@ -142,16 +174,33 @@ void ofApp::keyPressed(int key){
             panelFlag = !panelFlag;
             break;
         case 'm':
-            metaball.toggleMetaballFlag();
+            metaball.toggleDrawFlag();
             break;
         case 'i':
-            metaball.toggleIsoPointsFlag();
+            isoPoints.toggleDrawFlag();
             break;
         case 'e':
-            emitterFlag = !emitterFlag;
+            emitter.toggleDrawFlag();
     }
     
 }
+
+
+ofMatrix3x3 ofApp::reduceMatrixFrom4to3(ofMatrix4x4 mat4){
+    ofMatrix3x3 mat3;
+    float *rawPtr = mat4.getPtr();
+    mat3.a = rawPtr[0];
+    mat3.b = rawPtr[1];
+    mat3.c = rawPtr[2];
+    mat3.d = rawPtr[4];
+    mat3.e = rawPtr[5];
+    mat3.f = rawPtr[6];
+    mat3.g = rawPtr[8];
+    mat3.h = rawPtr[9];
+    mat3.i = rawPtr[10];
+    return mat3;
+}
+
 
 //--------------------------------------------------------------
 void ofApp::keyReleased(int key){

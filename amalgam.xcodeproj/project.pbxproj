@@ -19,8 +19,9 @@
 		624C0712197A965200988965 /* Metaball.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 624C0710197A965200988965 /* Metaball.cpp */; };
 		624DC5DF197848B5003376B4 /* OpenCL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 624DC5DE197848B5003376B4 /* OpenCL.framework */; };
 		624DC5E51978601C003376B4 /* amalgam.cl in Sources */ = {isa = PBXBuildFile; fileRef = 624DC5E41978601C003376B4 /* amalgam.cl */; };
+		62901A1D1988FB8B00EA21F0 /* IsoPoints.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 62901A1B1988FB8B00EA21F0 /* IsoPoints.cpp */; };
+		62901A201989301F00EA21F0 /* SceneComponent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 62901A1E1989301F00EA21F0 /* SceneComponent.cpp */; };
 		62C8EDE61980FF060066F66F /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 62C8EDE51980FF060066F66F /* main.cpp */; };
-		62C8EDED198132780066F66F /* TexMaterial.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 62C8EDEB198132780066F66F /* TexMaterial.cpp */; };
 		BBAB23CB13894F3D00AA2426 /* GLUT.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = BBAB23BE13894E4700AA2426 /* GLUT.framework */; };
 		E4328149138ABC9F0047C5CB /* openFrameworksDebug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E4328148138ABC890047C5CB /* openFrameworksDebug.a */; };
 		E45BE97B0E8CC7DD009D7055 /* AGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E45BE9710E8CC7DD009D7055 /* AGL.framework */; };
@@ -98,11 +99,13 @@
 		624DC5DE197848B5003376B4 /* OpenCL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenCL.framework; path = System/Library/Frameworks/OpenCL.framework; sourceTree = SDKROOT; };
 		624DC5E319785697003376B4 /* cl.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = cl.hpp; sourceTree = "<group>"; };
 		624DC5E41978601C003376B4 /* amalgam.cl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.opencl; name = amalgam.cl; path = bin/data/amalgam.cl; sourceTree = SOURCE_ROOT; };
+		62901A1B1988FB8B00EA21F0 /* IsoPoints.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IsoPoints.cpp; sourceTree = "<group>"; };
+		62901A1C1988FB8B00EA21F0 /* IsoPoints.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IsoPoints.h; sourceTree = "<group>"; };
+		62901A1E1989301F00EA21F0 /* SceneComponent.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SceneComponent.cpp; sourceTree = "<group>"; };
+		62901A1F1989301F00EA21F0 /* SceneComponent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SceneComponent.h; sourceTree = "<group>"; };
 		62C8EDE31980FE240066F66F /* Phong.frag */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = Phong.frag; path = bin/data/shaders/Phong.frag; sourceTree = SOURCE_ROOT; };
 		62C8EDE41980FE240066F66F /* Phong.vert */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = Phong.vert; path = bin/data/shaders/Phong.vert; sourceTree = SOURCE_ROOT; };
 		62C8EDE51980FF060066F66F /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
-		62C8EDEB198132780066F66F /* TexMaterial.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TexMaterial.cpp; sourceTree = "<group>"; };
-		62C8EDEC198132780066F66F /* TexMaterial.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TexMaterial.h; sourceTree = "<group>"; };
 		BBAB23BE13894E4700AA2426 /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = ../../of_v0.8.1_osx_release/libs/glut/lib/osx/GLUT.framework; sourceTree = "<group>"; };
 		E4328143138ABC890047C5CB /* openFrameworksLib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = openFrameworksLib.xcodeproj; path = ../../of_v0.8.1_osx_release/libs/openFrameworksCompiled/project/osx/openFrameworksLib.xcodeproj; sourceTree = SOURCE_ROOT; };
 		E45BE9710E8CC7DD009D7055 /* AGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AGL.framework; path = /System/Library/Frameworks/AGL.framework; sourceTree = "<absolute>"; };
@@ -259,17 +262,19 @@
 		E4B69E1C0A3A1BDC003C02F2 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				62C8EDEB198132780066F66F /* TexMaterial.cpp */,
-				62C8EDEC198132780066F66F /* TexMaterial.h */,
 				62C8EDE51980FF060066F66F /* main.cpp */,
 				62C8EDE31980FE240066F66F /* Phong.frag */,
 				62C8EDE41980FE240066F66F /* Phong.vert */,
 				624C070C197A7EC500988965 /* Constant.h */,
 				624C0710197A965200988965 /* Metaball.cpp */,
 				624C0711197A965200988965 /* Metaball.h */,
+				62901A1B1988FB8B00EA21F0 /* IsoPoints.cpp */,
+				62901A1C1988FB8B00EA21F0 /* IsoPoints.h */,
 				624DC5E41978601C003376B4 /* amalgam.cl */,
 				624C070A197A79A700988965 /* Emitter.h */,
 				624C0709197A79A700988965 /* Emitter.cpp */,
+				62901A1E1989301F00EA21F0 /* SceneComponent.cpp */,
+				62901A1F1989301F00EA21F0 /* SceneComponent.h */,
 				E4B69E1F0A3A1BDC003C02F2 /* ofApp.h */,
 				E4B69E1E0A3A1BDC003C02F2 /* ofApp.cpp */,
 				624DC5DC197846DB003376B4 /* Particle.h */,
@@ -376,13 +381,14 @@
 			files = (
 				624C0708197A10AF00988965 /* ofxToggle.cpp in Sources */,
 				624C0707197A10AF00988965 /* ofxSliderGroup.cpp in Sources */,
+				62901A1D1988FB8B00EA21F0 /* IsoPoints.cpp in Sources */,
 				624C0701197A10AF00988965 /* ofxBaseGui.cpp in Sources */,
 				624C0706197A10AF00988965 /* ofxSlider.cpp in Sources */,
 				624C0703197A10AF00988965 /* ofxGuiGroup.cpp in Sources */,
 				624C0705197A10AF00988965 /* ofxPanel.cpp in Sources */,
-				62C8EDED198132780066F66F /* TexMaterial.cpp in Sources */,
 				624C070B197A79A700988965 /* Emitter.cpp in Sources */,
 				624C0712197A965200988965 /* Metaball.cpp in Sources */,
+				62901A201989301F00EA21F0 /* SceneComponent.cpp in Sources */,
 				624DC5E51978601C003376B4 /* amalgam.cl in Sources */,
 				624C0704197A10AF00988965 /* ofxLabel.cpp in Sources */,
 				62C8EDE61980FF060066F66F /* main.cpp in Sources */,

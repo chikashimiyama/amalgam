@@ -23,7 +23,6 @@ void main()
     vec3 v = normalize(-eyeCoords.xyz);
     vec3 r = reflect(-s, tnorm);
     float sDotN = max(dot(s, tnorm), 0.0);
-    
     vec3 diffuse  = Ld * Kd * sDotN;
     vec3 spec = vec3(0.0);
     if(sDotN > 0.0){
