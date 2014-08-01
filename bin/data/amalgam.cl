@@ -1,12 +1,11 @@
 #define NUM_PARTICLES 32
 #define NUM_COMP_UNITS 6
-#define RESOLUTION 43
+#define RESOLUTION 51
 #define RESOULTION_MINUS_ONE (RESOLUTION - 1)
 #define POWER_OF_RESOULTION_MINUS_ONE (RESOULTION_MINUS_ONE * RESOULTION_MINUS_ONE)
 #define NUM_CUBES (POWER_OF_RESOULTION_MINUS_ONE * RESOULTION_MINUS_ONE)
 #define RANDOM_TABLE_SIZE 8192
 
-__constant float isoThreshold = 0.000563;
 
 __constant int edgeTable[] = { 0x0 , 0x109, 0x203, 0x30a, 0x406, 0x50f, 0x605, 0x70c,0x80c, 0x905, 0xa0f, 0xb06, 0xc0a, 0xd03, 0xe09, 0xf00,0x190, 0x99 , 0x393, 0x29a,0x596, 0x49f, 0x795, 0x69c,0x99c, 0x895, 0xb9f, 0xa96, 0xd9a, 0xc93, 0xf99, 0xe90,0x230, 0x339, 0x33 , 0x13a, 0x636, 0x73f, 0x435, 0x53c,0xa3c, 0xb35, 0x83f, 0x936, 0xe3a, 0xf33, 0xc39, 0xd30,0x3a0, 0x2a9, 0x1a3, 0xaa , 0x7a6, 0x6af, 0x5a5, 0x4ac,0xbac, 0xaa5, 0x9af, 0x8a6, 0xfaa, 0xea3, 0xda9, 0xca0,0x460, 0x569, 0x663, 0x76a, 0x66 , 0x16f, 0x265, 0x36c,0xc6c, 0xd65, 0xe6f, 0xf66, 0x86a, 0x963, 0xa69, 0xb60,0x5f0, 0x4f9, 0x7f3, 0x6fa, 0x1f6, 0xff , 0x3f5, 0x2fc,0xdfc, 0xcf5, 0xfff, 0xef6, 0x9fa, 0x8f3, 0xbf9, 0xaf0,0x650, 0x759, 0x453, 0x55a, 0x256, 0x35f, 0x55 , 0x15c,0xe5c, 0xf55, 0xc5f, 0xd56, 0xa5a, 0xb53, 0x859, 0x950,0x7c0, 0x6c9, 0x5c3, 0x4ca, 0x3c6, 0x2cf, 0x1c5, 0xcc ,0xfcc, 0xec5, 0xdcf, 0xcc6, 0xbca, 0xac3, 0x9c9, 0x8c0,0x8c0, 0x9c9, 0xac3, 0xbca, 0xcc6, 0xdcf, 0xec5, 0xfcc,0xcc , 0x1c5, 0x2cf, 0x3c6, 0x4ca, 0x5c3, 0x6c9, 0x7c0,0x950, 0x859, 0xb53, 0xa5a, 0xd56, 0xc5f, 0xf55, 0xe5c,0x15c, 0x55 , 0x35f, 0x256, 0x55a, 0x453, 0x759, 0x650,0xaf0, 0xbf9, 0x8f3, 0x9fa, 0xef6, 0xfff, 0xcf5, 0xdfc,0x2fc, 0x3f5, 0xff , 0x1f6, 0x6fa, 0x7f3, 0x4f9, 0x5f0,0xb60, 0xa69, 0x963, 0x86a, 0xf66, 0xe6f, 0xd65, 0xc6c,0x36c, 0x265, 0x16f, 0x66 , 0x76a, 0x663, 0x569, 0x460,0xca0, 0xda9, 0xea3, 0xfaa, 0x8a6, 0x9af, 0xaa5, 0xbac,0x4ac, 0x5a5, 0x6af, 0x7a6, 0xaa , 0x1a3, 0x2a9, 0x3a0,0xd30, 0xc39, 0xf33, 0xe3a, 0x936, 0x83f, 0xb35, 0xa3c,0x53c, 0x435, 0x73f, 0x636, 0x13a, 0x33 , 0x339, 0x230,0xe90, 0xf99, 0xc93, 0xd9a, 0xa96, 0xb9f, 0x895, 0x99c,0x69c, 0x795, 0x49f, 0x596, 0x29a, 0x393, 0x99 , 0x190,0xf00, 0xe09, 0xd03, 0xc0a, 0xb06, 0xa0f, 0x905, 0x80c,0x70c, 0x605, 0x50f, 0x406, 0x30a, 0x203, 0x109, 0x0   };
 
@@ -270,6 +269,7 @@ __constant int triTable[][16]=
     {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}};
 
 
+
 typedef struct Particle{
     float orientation[3];
     float acceleration[3];
@@ -303,9 +303,10 @@ typedef struct IsoPoint{
 }IsoPoint;
 
 typedef struct Inspector{
+    float isoThreshold;
     int numberOfValidCubes;
     int numberOfValidPoints;
-    int dummy[2];
+    int dummy[1];
 }Inspector;
 
 
@@ -410,7 +411,7 @@ __kernel void updateIsoPoints(
 
 
 
-IsoPoint vertexInterpolation(__global IsoPoint *point1, __global IsoPoint *point2) {
+IsoPoint vertexInterpolation(__global IsoPoint *point1, __global IsoPoint *point2, float isoThreshold) {
 
     IsoPoint point;
     float isoValue1 = point1->isoValue;
@@ -446,6 +447,7 @@ __kernel void createIsoSurface(
     int i = get_global_id(0);
     int j = get_global_id(1);
     int k = get_global_id(2);
+    float ist = inspector->isoThreshold;
 
     __global  IsoPoint *p1 = &isoPoints[getPointPos(i,j,k)];
     __global  IsoPoint *p2 = &isoPoints[getPointPos(i+1,j,k)];
@@ -460,45 +462,36 @@ __kernel void createIsoSurface(
 
     // based on isoValue of each points, determine the type of cube (cube index)
     int cubeIndex = 0; // between 0 - 255
-    if(p1->isoValue > isoThreshold) cubeIndex |= 1;
-    if(p2->isoValue > isoThreshold) cubeIndex |= 2;
-    if(p3->isoValue > isoThreshold) cubeIndex |= 4;
-    if(p4->isoValue > isoThreshold) cubeIndex |= 8;
-    if(p5->isoValue > isoThreshold) cubeIndex |= 16;
-    if(p6->isoValue > isoThreshold) cubeIndex |= 32;
-    if(p7->isoValue > isoThreshold) cubeIndex |= 64;
-    if(p8->isoValue > isoThreshold) cubeIndex |= 128;
+    if(p1->isoValue > ist) cubeIndex |= 1;
+    if(p2->isoValue > ist) cubeIndex |= 2;
+    if(p3->isoValue > ist) cubeIndex |= 4;
+    if(p4->isoValue > ist) cubeIndex |= 8;
+    if(p5->isoValue > ist) cubeIndex |= 16;
+    if(p6->isoValue > ist) cubeIndex |= 32;
+    if(p7->isoValue > ist) cubeIndex |= 64;
+    if(p8->isoValue > ist) cubeIndex |= 128;
     
     if(cubeIndex == 0) return;
     if(cubeIndex == 255) return;
     
-    atomic_inc(&inspector->numberOfValidCubes);
+    atomic_inc(&inspector->numberOfValidCubes); // this stopps calulation should be done in CPU 
 
     // prepare the vertices of triangles
     IsoPoint vertices[12];
-    for(int index = 0; index < 12; index++){
-        vertices[index].x = 0.0;
-        vertices[index].y = 0.0;
-        vertices[index].z = 0.0;
-        vertices[index].xn = 0.0;
-        vertices[index].yn = 0.0;
-        vertices[index].zn = 0.0;
-        vertices[index].isoValue = 0.0;
-    }
-    
+
     int edge  = edgeTable[cubeIndex];
-    if((edge & 1)==1)       vertices[0]  = vertexInterpolation(p1, p2);
-    if((edge & 2)==2)       vertices[1]  = vertexInterpolation(p2, p3);
-    if((edge & 4)==4)       vertices[2]  = vertexInterpolation(p3, p4);
-    if((edge & 8)==8)       vertices[3]  = vertexInterpolation(p4, p1);
-    if((edge & 16)==16)     vertices[4]  = vertexInterpolation(p5, p6);
-    if((edge & 32)==32)     vertices[5]  = vertexInterpolation(p6, p7);
-    if((edge & 64)==64)     vertices[6]  = vertexInterpolation(p7, p8);
-    if((edge & 128)==128)   vertices[7]  = vertexInterpolation(p8, p5);
-    if((edge & 256)==256)   vertices[8]  = vertexInterpolation(p1, p5);
-    if((edge & 512)==512)   vertices[9]  = vertexInterpolation(p2, p6);
-    if((edge & 1024)==1024) vertices[10] = vertexInterpolation(p3, p7);
-    if((edge & 2048)==2048) vertices[11] = vertexInterpolation(p4, p8);
+    if((edge & 1)==1)       vertices[0]  = vertexInterpolation(p1, p2, ist);
+    if((edge & 2)==2)       vertices[1]  = vertexInterpolation(p2, p3, ist);
+    if((edge & 4)==4)       vertices[2]  = vertexInterpolation(p3, p4, ist);
+    if((edge & 8)==8)       vertices[3]  = vertexInterpolation(p4, p1, ist);
+    if((edge & 16)==16)     vertices[4]  = vertexInterpolation(p5, p6, ist);
+    if((edge & 32)==32)     vertices[5]  = vertexInterpolation(p6, p7, ist);
+    if((edge & 64)==64)     vertices[6]  = vertexInterpolation(p7, p8, ist);
+    if((edge & 128)==128)   vertices[7]  = vertexInterpolation(p8, p5, ist);
+    if((edge & 256)==256)   vertices[8]  = vertexInterpolation(p1, p5, ist);
+    if((edge & 512)==512)   vertices[9]  = vertexInterpolation(p2, p6, ist);
+    if((edge & 1024)==1024) vertices[10] = vertexInterpolation(p3, p7, ist);
+    if((edge & 2048)==2048) vertices[11] = vertexInterpolation(p4, p8, ist);
     
     //pointer to the triangleVbo
     

@@ -18,9 +18,11 @@ ofApp::~ofApp(){
 }
 
 void ofApp::setupGui(){
+    ofxGuiSetDefaultHeight(10);
     panel.setup("Parameters");
     panel.add(emitter.getEmitterParameterGroup());
     panel.add(emitter.getForceParameterGroup());
+    panel.add(metaball.getParameterGroup());
 }
 
 
@@ -132,8 +134,12 @@ void ofApp::update(){
     //shader update
     shader.begin();
     shader.setUniform4fv("LightPosition", lightPosition.getPtr());
-    shader.setUniform3f("Kd", 0.5, 0.5, 0.5);
-    shader.setUniform3f("Ld", 1.0, 1.0, 1.0);
+    shader.setUniform3f("LightIntensity", 1.0, 1.0, 1.0);
+    shader.setUniform3f("Kd", 0.5, 0.5, 0.4);
+    shader.setUniform3f("Ks", 0.6, 0.6, 0.6);
+    shader.setUniform3f("Ka", 0.4, 0.4, 0.4);
+    shader.setUniform1f("Shininess", 5.0);
+
     shader.setUniformMatrix4f("ModelViewMatrix",modelViewMatrix);
     shader.setUniformMatrix4f("ProjectionMatrix",projectionMatrix);
     GLuint prog = shader.getProgram();
@@ -149,6 +155,7 @@ void ofApp::update(){
     }
     shader.setUniformMatrix4f("MVP", MVP);
     shader.end();
+    ofLog() << ofGetFrameRate();
 }
 
 //--------------------------------------------------------------

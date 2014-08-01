@@ -46,10 +46,19 @@ private:
     int getPointPos(int x, int y, int z);
     void sceneSetting();
     
+#pragma mark parameters
+    ofParameterGroup PG;
+    ofParameter<float>isoThresholdP;
+
 public:
     ~Metaball();
+    ofParameterGroup getParameterGroup();
     void setup(cl::Context *clContext, cl::Program *clProgram, cl::CommandQueue *clQueue);
     void update(cl::BufferGL *clParticleBufferGL, cl::Buffer *clIsoPoints);
     void draw();
 };
+
+inline ofParameterGroup Metaball::getParameterGroup(){
+    return PG;
+}
 #endif /* defined(__amalgam__Metaball__) */

@@ -65,9 +65,13 @@ void IsoPoints::setup(cl::Context *clContext, cl::Program *clProgram, cl::Comman
 
 void IsoPoints::update(cl::BufferGL *clParticleBufferGL ){
     cl::Event event;
+    clock_t t = clock();
+    
     (*clUpdateIsoPointsFunctor)(*clIsoPoints ,*clParticleBufferGL, &event);
     event.wait();
     
+    ofLog() << "Iso update (ms):" << ((float)(clock()-t))/(float)CLOCKS_PER_SEC * 1000.0;
+
     if(drawFlag){
         clQueue->enqueueReadBuffer(*clIsoPoints ,CL_TRUE,0,sizeof(IsoPoint) * NUM_ISO_POINTS, isoPoints, NULL, &event);
         event.wait();

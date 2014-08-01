@@ -21,6 +21,9 @@ int Metaball::getPointPos(int x, int y, int z){
 
 
 void Metaball::setup(cl::Context *clContext, cl::Program *clProgram, cl::CommandQueue *clQueue){
+    PG.setName("Metaball");
+    isoThresholdP.set("isoThreshold", 0.005, 0.0, 0.005);
+    PG.add(isoThresholdP);
     
     Metaball::clQueue = clQueue;
     clInspector = new cl::Buffer(*clContext, CL_MEM_READ_WRITE, sizeof(Inspector));
@@ -48,22 +51,23 @@ void Metaball::setup(cl::Context *clContext, cl::Program *clProgram, cl::Command
 
 void Metaball::update(cl::BufferGL *clParticleBufferGL, cl::Buffer *clIsoPoints){
 
+    
     cl::Event event;
     inspector.numberOfValidCubes = 0;
     inspector.numberOfValidPoints = 0;
+    inspector.isoThreshold = isoThresholdP.get();
+    
     clQueue->enqueueWriteBuffer(*clInspector, GL_TRUE, 0, sizeof(Inspector), &inspector, NULL, &event);
     event.wait();
-    
+
     (*clCreateIsoSurfaceFunctor)(*clIsoPoints,
                                  *clTriangleSurfaceBufferGL,
                                  *clTriangleSurfaceNormalBufferGL,
                                  *clInspector, &event);
     event.wait();
-    
     // get number of points to be drawn
     clQueue->enqueueReadBuffer(*clInspector ,CL_TRUE,0,sizeof(Inspector), &inspector, NULL, &event);
     event.wait();
-    
     numValidPoints = inspector.numberOfValidPoints;
 
 }

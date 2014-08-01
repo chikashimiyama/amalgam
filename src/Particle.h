@@ -45,9 +45,10 @@ typedef struct IsoPoint{
 } IsoPoint;
 
 typedef struct Inspector{
+    cl_float isoThreshold;
     cl_int numberOfValidCubes;
     cl_int numberOfValidPoints;
-    cl_int dummy[2];
+    cl_int dummy;
 } Inspector;
 
 #endif /* defined(__amalgam__Particle__) */
