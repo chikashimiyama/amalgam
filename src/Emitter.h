@@ -16,6 +16,11 @@
 #include "SceneComponent.h"
 #endif /* defined(__amalgam__Emitter__) */
 
+typedef struct Particle{
+    ofVec3f orientation;
+    ofVec3f acceleration;
+} Particle;
+
 class Emitter : public SceneComponent {
 private:
 
@@ -23,15 +28,10 @@ private:
     float randomTable[SIZE_OF_RANDOM_TABLE];
     
 #pragma mark particleBuffers
-    cl::Buffer *clParticleBuffer; // GPU
-    Particle particleBuffer[NUM_PARTICLES]; // CPU
-    
-    cl::Buffer *clParticleSettingBuffer; // GPU
-    ParticleSetting particleSetting; // CPU
-
+    ofVec3f particlePosition[NUM_PARTICLES];
+    Particle particles[NUM_PARTICLES]; // CPU
+    ofVbo particleVbo; // GPU -GL
     cl::BufferGL *clParticleBufferGL; // GPU -CL
-    ofVbo dotsVBO; // GPU -GL
-    ofVec3f dots[NUM_PARTICLES]; // CPU
 
 #pragma mark openCL
     cl::CommandQueue *clQueue;
@@ -61,6 +61,7 @@ private:
 public:
     ~Emitter();
     void setup(cl::Context *clContext, cl::Program *clProgram, cl::CommandQueue *clQueue);
+    void updateParticlePosition();
     void update();
     void draw();
 

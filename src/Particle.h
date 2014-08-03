@@ -11,12 +11,7 @@
 
 #include <cl.hpp>
 
-struct Particle{
-    cl_float orientation[3];
-    cl_float acceleration[3];
-    cl_int lifespan;
-    cl_int age;
-};
+
 
 struct ParticleSetting{
     cl_float origin[3];

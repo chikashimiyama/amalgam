@@ -269,28 +269,6 @@ __constant int triTable[][16]=
     {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}};
 
 
-
-typedef struct Particle{
-    float orientation[3];
-    float acceleration[3];
-    int lifeSpan;
-    int age;
-}Particle;
-
-typedef struct ParticleSetting{
-    float origin[3];
-    float originSpread[3];
-    float orientation[3];
-    float orientationSpread[3];
-    float acceleration[3];
-    float accelerationSpread[3];
-    float turbulence[3];
-    uint lifeSpan[2];
-    uint numberOfSpawn;
-    uint spawnIndex;
-    int dummy[7];
-}ParticleSetting;
-
 typedef struct IsoPoint{
     float x;
     float y;
@@ -308,66 +286,6 @@ typedef struct Inspector{
     int numberOfValidPoints;
     int dummy[1];
 }Inspector;
-
-
-
-__kernel void update(
-                     __global Particle* pb,
-                     __global ParticleSetting* init,
-                     __global float *points,
-                     __global float *randomTable,
-                     int randomSeed){
-
-    int id = get_global_id(0);
-    __global Particle *p = &pb[id];
-    __global float * pos = &points[id*3];
-
-    
-    pos[0] += p->orientation[0];
-    pos[1] += p->orientation[1];
-    pos[2] += p->orientation[2];
-    
-    int randomOffset = (randomSeed + id);
-    pos[0] += init->turbulence[0] * randomTable[randomOffset%RANDOM_TABLE_SIZE];
-    pos[1] += init->turbulence[1] * randomTable[(randomOffset+1)%RANDOM_TABLE_SIZE];
-    pos[2] += init->turbulence[2] * randomTable[(randomOffset+2)%RANDOM_TABLE_SIZE];
-        
-    p->orientation[0] += p->acceleration[0];
-    p->orientation[1] += p->acceleration[1];
-    p->orientation[2] += p->acceleration[2];
-    
-    
-    p->age++;
-    
-    int endSpawnIndex = (init->spawnIndex + init->numberOfSpawn) % NUM_PARTICLES;
-    bool wrapped = endSpawnIndex < init->spawnIndex;
-    bool initFlag = false;
-    if(wrapped){
-        if((init->spawnIndex <= id) && (id < NUM_PARTICLES)){
-            initFlag = true;
-        }else if((0 <= id) && (id < endSpawnIndex)){
-            initFlag = true;
-        }
-    }else{
-        if(init->spawnIndex <= id  &&  id < endSpawnIndex){
-            initFlag =true;
-        }
-    }
-    
-    if(initFlag){
-        pos[0] = init->origin[0] + (init->originSpread[0] * randomTable[(randomOffset+3)%RANDOM_TABLE_SIZE]);
-        pos[1] = init->origin[1] + (init->originSpread[1] * randomTable[(randomOffset+4)%RANDOM_TABLE_SIZE]);
-        pos[2] = init->origin[2] + (init->originSpread[2] * randomTable[(randomOffset+5)%RANDOM_TABLE_SIZE]);
-        p->orientation[0] = init->orientation[0] + (init->orientationSpread[0] * randomTable[(randomOffset+6)%RANDOM_TABLE_SIZE]);
-        p->orientation[1] = init->orientation[1] + (init->orientationSpread[1] * randomTable[(randomOffset+7)%RANDOM_TABLE_SIZE]);
-        p->orientation[2] = init->orientation[2] + (init->orientationSpread[2] * randomTable[(randomOffset+8)%RANDOM_TABLE_SIZE]);
-        p->acceleration[0] = init->acceleration[0] + (init->accelerationSpread[0] * randomTable[(randomOffset+9)%RANDOM_TABLE_SIZE]);
-        p->acceleration[1] = init->acceleration[1] + (init->accelerationSpread[1] * randomTable[(randomOffset+10)%RANDOM_TABLE_SIZE]);
-        p->acceleration[2] = init->acceleration[2] + (init->accelerationSpread[2] * randomTable[(randomOffset+11)%RANDOM_TABLE_SIZE]);
-        p->age = 0;
-        p->lifeSpan = init->lifeSpan[0];
-    }
-}
 
 //1D kernel
 __kernel void updateIsoPoints(
