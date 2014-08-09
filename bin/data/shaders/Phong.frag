@@ -1,11 +1,31 @@
 // fragment shader
-
 #version 410
 
-in vec3 LightIntensity;
+in vec3 Position;
+in vec3 Normal;
 
-out vec4 FragColor;
+uniform vec4 LightPosition;
+uniform vec3 LightIntensity;
+
+uniform vec3 Kd;            // Diffuse reflectivity
+uniform vec3 Ka;            // Diffuse reflectivity
+uniform vec3 Ks;            // Diffuse reflectivity
+uniform float Shininess;    // Specular shininess factor
+
+layout( location = 0 ) out vec4 FragColor;
+
+vec3 ads( )
+{
+    vec3 s = normalize( vec3(LightPosition) - Position );
+    vec3 v = normalize(vec3(-Position));
+    vec3 r = reflect( -s, Normal );
+    
+    return
+    LightIntensity * ( Ka +
+                      Kd * max( dot(s, Normal), 0.0 ) +
+                      Ks * pow( max( dot(r,v), 0.0 ), Shininess ) );
+}
 
 void main() {
-    FragColor = vec4(LightIntensity, 1.0);
+    FragColor = vec4(ads(), 1.0);
 }

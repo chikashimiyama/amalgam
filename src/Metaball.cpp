@@ -64,10 +64,10 @@ void Metaball::update(cl::BufferGL *clParticleBufferGL, cl::Buffer *clIsoPoints)
                                  *clTriangleSurfaceBufferGL,
                                  *clTriangleSurfaceNormalBufferGL,
                                  *clInspector, &event);
-    event.wait();
+    //event.wait();
     // get number of points to be drawn
     clQueue->enqueueReadBuffer(*clInspector ,CL_TRUE,0,sizeof(Inspector), &inspector, NULL, &event);
-    event.wait();
+    //event.wait();
     numValidPoints = inspector.numberOfValidPoints;
 
 }

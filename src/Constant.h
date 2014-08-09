@@ -10,10 +10,10 @@
 #define amalgam_Constant_h
 
 #define SIZE_OF_RANDOM_TABLE 8192
-#define NUM_PARTICLES 32
+#define NUM_PARTICLES 16
 #define BOX_SIZE 860
-#define RESOLUTION 51
-#define OFFSET 25
+#define RESOLUTION 75
+#define OFFSET 37
 #define RESOLUTION_MINUS_ONE (RESOLUTION - 1)
 
 #define NUMBER_OF_COMP_UNITS 6

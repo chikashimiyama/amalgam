@@ -30,7 +30,7 @@ void ofApp::setupScene(){
     
     modelMatrix.makeIdentityMatrix();
     
-    ofVec3f eyePosition = ofVec3f(0.0, 200.0, 800.0);
+    ofVec3f eyePosition = ofVec3f(0.0, 200.0, 500.0);
     ofVec3f lookAt = ofVec3f(0.0, 0.0, 0.0);
     
     viewMatrix.makeLookAtViewMatrix(eyePosition, lookAt, ofVec3f(0.0, 1.0, 0.0));
@@ -110,7 +110,6 @@ void ofApp::setupShader(){
 
 void ofApp::setup(){
     panelFlag = true;
-    
     setupCL();
     emitter.setup(clContext, clProgram, clQueue);
     isoPoints.setup(clContext, clProgram, clQueue);
@@ -133,12 +132,12 @@ void ofApp::update(){
 
     //shader update
     shader.begin();
+    shader.setUniform3f("LightIntensity", 1.0, 1.0, 1.0);
     shader.setUniform4fv("LightPosition", lightPosition.getPtr());
     shader.setUniform3f("Ka", 0.4, 0.4, 0.4);
-    shader.setUniform3f("Kd", 0.3, 0.3, 0.3);
+    shader.setUniform3f("Kd", 0.5, 0.5, 0.5);
     shader.setUniform3f("Ks", 0.3, 0.3, 0.3);
-    shader.setUniform3f("Ld", 1.0, 1.0, 1.0);
-    shader.setUniform1f("Shininess", 15.0);
+    shader.setUniform1f("Shininess", 5.0);
 
     shader.setUniformMatrix4f("ModelViewMatrix",modelViewMatrix);
     shader.setUniformMatrix4f("ProjectionMatrix",projectionMatrix);
@@ -167,9 +166,8 @@ void ofApp::draw(){
         emitter.draw();
         metaball.draw();
         isoPoints.draw();
-        shader.end();
+    shader.end();
     ofDisableDepthTest();
-    
     if(panelFlag) panel.draw();
 }
 
