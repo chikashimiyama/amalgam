@@ -12,6 +12,8 @@
 
 class ofApp : public ofBaseApp{
     private:
+    ofVec3f poltocar(const float &r, const float &e, const float &a) const ;
+    
 #pragma mark openCL
     cl::Program *clProgram;
     cl::Context *clContext;
@@ -23,6 +25,7 @@ class ofApp : public ofBaseApp{
     IsoPoints isoPoints;
     ofxPanel panel;
 
+
 #pragma mark Shader
     ofShader shader;
     ofVec3f lightPosition;
@@ -32,7 +35,16 @@ class ofApp : public ofBaseApp{
     ofMatrix4x4 modelViewMatrix;
     ofMatrix4x4 MVP;
     ofMatrix3x3 normalMatrix;
-
+    ofTexture cubeTex[6];
+    ofImage cubeImage[6];
+    
+    
+#pragma mark Parameter
+    ofParameterGroup cameraPG;
+    ofParameter<float> azimuthP;
+    ofParameter<float> distanceP;
+    ofParameter<float> elevationP;
+    
 #pragma mark Setup subfunctions
     void setupGui();
     void setupScene();
@@ -59,3 +71,14 @@ public:
     void dragEvent(ofDragInfo dragInfo);
     void gotMessage(ofMessage msg);
 };
+
+
+inline ofVec3f ofApp::poltocar(const float &r, const float &e, const float &a) const{
+    
+    ofVec3f result;
+    result.x = r * sin(e) * sin(a);
+    result.y = r * cos(e);
+    result.z = r * sin(e) * cos(a);
+    return result;
+}
+

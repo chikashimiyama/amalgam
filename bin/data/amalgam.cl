@@ -1,6 +1,6 @@
 #define NUM_PARTICLES 16
 #define NUM_COMP_UNITS 6
-#define RESOLUTION 75
+#define RESOLUTION 71
 #define RESOULTION_MINUS_ONE (RESOLUTION - 1)
 #define POWER_OF_RESOULTION_MINUS_ONE (RESOULTION_MINUS_ONE * RESOULTION_MINUS_ONE)
 #define NUM_CUBES (POWER_OF_RESOULTION_MINUS_ONE * RESOULTION_MINUS_ONE)
@@ -399,10 +399,13 @@ __kernel void createIsoSurface(
     if((edge & 2048)==2048) vertices[11] = vertexInterpolation(p4, p8, ist);
     
     //pointer to the triangleVbo
-    //atomic_inc(&inspector->numberOfValidCubes); // this stopps calulation should be done in CPU
 
     IsoPoint *tri0, *tri1, *tri2;
-    for(uchar i=0; i<13; i+=3) { // 0, 3, 6, 9, 12
+    __global float *targetIndex;
+    __global float *targetNormalIndex;
+    int vertexOffset;
+
+    for(uchar i=0; i<10; i+=3) { // 0, 3, 6, 9
         
         if(triTable[cubeIndex][i] == -1) continue;
         
@@ -410,12 +413,7 @@ __kernel void createIsoSurface(
         tri1 = &vertices[triTable[cubeIndex][i+1]];
         tri2 = &vertices[triTable[cubeIndex][i+2]];
 
-        __global float *targetIndex;
-        __global float *targetNormalIndex;
-        
-        int pointOffset = atomic_add(&inspector->numberOfValidPoints, 3);
-        int vertexOffset = pointOffset * 3;
-        
+        vertexOffset =  atomic_add(&inspector->numberOfValidPoints, 3) * 3;
         targetIndex = &triangleVbo[vertexOffset];
         targetNormalIndex = &triangleNormalVbo[vertexOffset];
         
@@ -442,6 +440,5 @@ __kernel void createIsoSurface(
         targetNormalIndex[6] = tri2->xn;
         targetNormalIndex[7] = tri2->yn;
         targetNormalIndex[8] = tri2->zn;
-
     }
 }

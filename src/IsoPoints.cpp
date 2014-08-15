@@ -67,8 +67,7 @@ void IsoPoints::update(cl::BufferGL *clParticleBufferGL ){
     cl::Event event;
     
     (*clUpdateIsoPointsFunctor)(*clIsoPoints ,*clParticleBufferGL, &event);
-    //event.wait();
-    
+    event.wait();
 
     if(drawFlag){
         clQueue->enqueueReadBuffer(*clIsoPoints ,CL_TRUE,0,sizeof(IsoPoint) * NUM_ISO_POINTS, isoPoints, NULL, &event);

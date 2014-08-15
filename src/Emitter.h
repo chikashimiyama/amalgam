@@ -16,10 +16,11 @@
 #include "SceneComponent.h"
 #endif /* defined(__amalgam__Emitter__) */
 
-typedef struct Particle{
+struct Particle{
+    
     ofVec3f orientation;
     ofVec3f acceleration;
-} Particle;
+};
 
 class Emitter : public SceneComponent {
 private:
@@ -56,7 +57,10 @@ private:
     ofParameter<float> isoAttenuationP;
     
     ofParameterGroup forcePG;
-    ofParameter<ofVec3f> turbulenceP;
+    ofParameter<float> turbulenceP;
+    ofParameter<float> gravitationP;
+    ofParameter<float> speedLimitP;
+
     
 public:
     ~Emitter();

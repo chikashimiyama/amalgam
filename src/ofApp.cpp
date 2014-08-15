@@ -18,31 +18,40 @@ ofApp::~ofApp(){
 }
 
 void ofApp::setupGui(){
+    cameraPG.setName("camera");
+    cameraPG.add(azimuthP.set("azimuth", 0.0, 0.0, PI * 2.0));
+    cameraPG.add(elevationP.set("elevation", 0.05, -PI, PI));
+    cameraPG.add(distanceP.set("distance", 700, 0.0, 1000));
+
     ofxGuiSetDefaultHeight(10);
     panel.setup("Parameters");
     panel.add(emitter.getEmitterParameterGroup());
     panel.add(emitter.getForceParameterGroup());
     panel.add(metaball.getParameterGroup());
+    panel.add(cameraPG);
 }
 
 
 void ofApp::setupScene(){
     
     modelMatrix.makeIdentityMatrix();
-    
-    ofVec3f eyePosition = ofVec3f(0.0, 200.0, 500.0);
-    ofVec3f lookAt = ofVec3f(0.0, 0.0, 0.0);
-    
-    viewMatrix.makeLookAtViewMatrix(eyePosition, lookAt, ofVec3f(0.0, 1.0, 0.0));
     projectionMatrix.makePerspectiveMatrix(60, 1.3333, 0.1, 10000);
     
-    modelViewMatrix = modelMatrix * viewMatrix;
-    MVP = modelMatrix * viewMatrix * projectionMatrix;
+
     
     normalMatrix = reduceMatrixFrom4to3(modelViewMatrix);
     
     lightPosition = ofVec4f(500.0, 700.0, 700, 1.0);
     lightPosition = lightPosition * viewMatrix; // eye coordinate
+
+    cubeImage[0].loadImage("posx.jpg");
+    cubeImage[1].loadImage("posy.jpg");
+    cubeImage[2].loadImage("posz.jpg");
+    cubeImage[3].loadImage("negx.jpg");
+    cubeImage[4].loadImage("negy.jpg");
+    cubeImage[5].loadImage("negz.jpg");
+    
+    
 }
 
 void ofApp::setupCL(){
@@ -110,6 +119,7 @@ void ofApp::setupShader(){
 
 void ofApp::setup(){
     panelFlag = true;
+    
     setupCL();
     emitter.setup(clContext, clProgram, clQueue);
     isoPoints.setup(clContext, clProgram, clQueue);
@@ -123,21 +133,38 @@ void ofApp::setup(){
 
 
 
+
+
 //--------------------------------------------------------------
 void ofApp::update(){
+    
+    ofVec3f cameraPos = poltocar(distanceP.get(), elevationP.get(), azimuthP.get());
+    
+    viewMatrix.makeLookAtViewMatrix(cameraPos, ofVec3f(0, 0, 0), ofVec3f(0.0, 1.0, 0.0));
+    modelViewMatrix = modelMatrix * viewMatrix;
+    MVP = modelMatrix * viewMatrix * projectionMatrix;
+    
     
     emitter.update();
     isoPoints.update(emitter.getParticleBufferGL());
     metaball.update(emitter.getParticleBufferGL(), isoPoints.getIsoPointsBuffer());
 
+    
     //shader update
     shader.begin();
+    shader.setUniformTexture("tex0", cubeImage[0].getTextureReference(), 0);
+    shader.setUniformTexture("tex1", cubeImage[1].getTextureReference(), 1);
+    shader.setUniformTexture("tex2", cubeImage[2].getTextureReference(), 2);
+    shader.setUniformTexture("tex3", cubeImage[3].getTextureReference(), 3);
+    shader.setUniformTexture("tex4", cubeImage[4].getTextureReference(), 4);
+    shader.setUniformTexture("tex5", cubeImage[5].getTextureReference(), 5);
+
     shader.setUniform3f("LightIntensity", 1.0, 1.0, 1.0);
     shader.setUniform4fv("LightPosition", lightPosition.getPtr());
-    shader.setUniform3f("Ka", 0.4, 0.4, 0.4);
-    shader.setUniform3f("Kd", 0.5, 0.5, 0.5);
-    shader.setUniform3f("Ks", 0.3, 0.3, 0.3);
-    shader.setUniform1f("Shininess", 5.0);
+    shader.setUniform3f("Ka", 0.4, 0.2, 0.9);
+    shader.setUniform3f("Kd", 0.5, 0.6, 0.5);
+    shader.setUniform3f("Ks", 0.9, 0.2, 0.2);
+    shader.setUniform1f("Shininess", 1.0);
 
     shader.setUniformMatrix4f("ModelViewMatrix",modelViewMatrix);
     shader.setUniformMatrix4f("ProjectionMatrix",projectionMatrix);

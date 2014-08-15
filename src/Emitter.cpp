@@ -45,19 +45,24 @@ void Emitter::createParameterGroups(){
     accelerationPG.add(accelerationSpreadP.set("accelerationSpread", ofVec3f(0, 0, 0) ,ofVec3f(-1, -1, -1), ofVec3f(1, 1, 1)));
     numSpawnP.set("numSpawn", 1, 0 ,10);
     isoAttenuationP.set("iso attenuation", 1.0, 0.0, 2.0);
-    
+    speedLimitP.set("speed limit", 5 , 5, 50);
+
     emitterPG.setName("Emitter");
     emitterPG.add(originPG);
     emitterPG.add(orientationPG);
     emitterPG.add(accelerationPG);
     emitterPG.add(numSpawnP);
     emitterPG.add(isoAttenuationP);
+    emitterPG.add(speedLimitP);
     
     // force parameter group
-    turbulenceP.set("turbulance", ofVec3f(0, 0, 0), ofVec3f(0, 0,  0), ofVec3f(100,100,100));
-    
+    turbulenceP.set("turbulance", 0, 0, 30);
+    gravitationP.set("gravitation", 0.5, 0, 2.0);
+
     forcePG.setName("Force");
     forcePG.add(turbulenceP);
+    forcePG.add(gravitationP);
+    
 }
 
 void Emitter::setup(cl::Context *clContext, cl::Program *clProgram, cl::CommandQueue *clQueue){
@@ -81,15 +86,23 @@ void Emitter::updateParticlePosition(){
     for (int i = 0; i < NUM_PARTICLES; i++) {
         
         particlePosition[i] += particles[i].orientation;
-        particlePosition[i] += turbulenceP.get() * ofVec3f(ofRandom(1.0), ofRandom(1.0), ofRandom(1.0));
         particles[i].orientation += particles[i].acceleration;
+        particlePosition[i] += turbulenceP.get() * ofVec3f(ofRandom(-1.0, 1.0), ofRandom(-1.0, 1.0), ofRandom(-1.0, 1.0));
         float dist = particlePosition[i].distance(ofVec3f());
-        if (dist < 50.0) {
+        
+        //if very close to the center, fire it.
+        if (dist < 20.0) {
+            particlePosition[i] = ofVec3f(ofRandom(-30, 30), ofRandom(-30, 30), ofRandom(-30, 30));
             particles[i].orientation = ofVec3f(ofRandom(-10, 10), ofRandom(-10, 10), ofRandom(-10, 10));
             particles[i].acceleration = ofVec3f(0.0, 0.0, 0.0);
 
         }
-        particles[i].acceleration = (particlePosition[i] - ofVec3f(0.0, 0.0, 0.0)).normalize() * -0.5;
+        particles[i].acceleration = -1.0 * (particlePosition[i] - ofVec3f(0.0, 0.0, 0.0)) * gravitationP.get() * 0.01;
+        float limit = speedLimitP.get();
+        particles[i].orientation.x = ofClamp(particles[i].orientation.x, -limit, limit);
+        particles[i].orientation.y = ofClamp(particles[i].orientation.y, -limit, limit);
+        particles[i].orientation.z = ofClamp(particles[i].orientation.z, -limit, limit);
+
     }
 
 }
@@ -101,33 +114,7 @@ void Emitter::update(void){
 }
 
 void Emitter::updateFromParameters(){
-
-//    particleSetting.origin[0] = originP.get().x;
-//    particleSetting.origin[1] = originP.get().y;
-//    particleSetting.origin[2] = originP.get().z;
-//    particleSetting.originSpread[0] = originSpreadP.get().x;
-//    particleSetting.originSpread[1] = originSpreadP.get().y;
-//    particleSetting.originSpread[2] = originSpreadP.get().z;
-//
-//    particleSetting.orientation[0] = orientationP.get().x;
-//    particleSetting.orientation[1] = orientationP.get().y;
-//    particleSetting.orientation[2] = orientationP.get().z;
-//    particleSetting.orientationSpread[0] = orientationSpreadP.get().x;
-//    particleSetting.orientationSpread[1] = orientationSpreadP.get().y;
-//    particleSetting.orientationSpread[2] = orientationSpreadP.get().z;
-//
-//    particleSetting.acceleration[0] = accelerationP.get().x;
-//    particleSetting.acceleration[1] = accelerationP.get().y;
-//    particleSetting.acceleration[2] = accelerationP.get().z;
-//    particleSetting.accelerationSpread[0] = accelerationSpreadP.get().x;
-//    particleSetting.accelerationSpread[1] = accelerationSpreadP.get().y;
-//    particleSetting.accelerationSpread[2] = accelerationSpreadP.get().z;
-//
-//    particleSetting.turbulence[0] = turbulenceP.get().x;
-//    particleSetting.turbulence[1] = turbulenceP.get().y;
-//    particleSetting.turbulence[2] = turbulenceP.get().z;
-//
-//    particleSetting.numberOfSpawn = numSpawnP.get();
+    
 }
 
 void Emitter::draw(void){
