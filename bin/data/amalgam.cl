@@ -1,6 +1,6 @@
 #define NUM_PARTICLES 16
 #define NUM_COMP_UNITS 6
-#define RESOLUTION 71
+#define RESOLUTION 40
 #define RESOULTION_MINUS_ONE (RESOLUTION - 1)
 #define POWER_OF_RESOULTION_MINUS_ONE (RESOULTION_MINUS_ONE * RESOULTION_MINUS_ONE)
 #define NUM_CUBES (POWER_OF_RESOULTION_MINUS_ONE * RESOULTION_MINUS_ONE)
@@ -405,7 +405,7 @@ __kernel void createIsoSurface(
     __global float *targetNormalIndex;
     int vertexOffset;
 
-    for(uchar i=0; i<10; i+=3) { // 0, 3, 6, 9
+    for(uchar i=0; i<15; i+=3) { // 0, 3, 6, 9
         
         if(triTable[cubeIndex][i] == -1) continue;
         

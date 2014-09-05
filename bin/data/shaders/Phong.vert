@@ -4,8 +4,6 @@
 layout (location = 0) in vec3 VertexPosition;
 layout (location = 2) in vec3 VertexNormal;
 
-
-
 out vec3 Position;
 out vec3 Normal;
 out vec3 ReflectDir;

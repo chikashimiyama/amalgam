@@ -13,7 +13,6 @@ uniform vec3 Ka;            // Diffuse reflectivity
 uniform vec3 Ks;            // Diffuse reflectivity
 uniform float Shininess;    // Specular shininess factor
 
-uniform samplerCube cubemap;
 
 layout( location = 0 ) out vec4 FragColor;
 

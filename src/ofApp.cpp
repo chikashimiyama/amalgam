@@ -61,7 +61,7 @@ void ofApp::setupCL(){
     ofLog() << "get list of platorms";
     std::vector<cl::Platform> plats;
     cl::Platform::get(&plats);
-    ofLog() << "number of platforms found " << plats.size();
+    ofLog() << "number of platforms found:" << plats.size();
     if(plats.size() == 0){
         ofLog() << "no platform found... aborting" << endl;
         abort();
@@ -72,23 +72,33 @@ void ofApp::setupCL(){
     CGLContextObj kCGLContext = CGLGetCurrentContext();
     CGLShareGroupObj kCGLShareGroup = CGLGetShareGroup(kCGLContext);
     cl_context_properties properties[] = { CL_CONTEXT_PROPERTY_USE_CGL_SHAREGROUP_APPLE, (cl_context_properties)kCGLShareGroup, 0};
-    clContext = new cl::Context(CL_DEVICE_TYPE_GPU, properties);
+    clContext = new cl::Context(CL_DEVICE_TYPE_DEFAULT, properties);
     std::vector<cl::Device> devices = clContext->getInfo<CL_CONTEXT_DEVICES>();
+    ofLog() << "number of devices found:" << devices.size();
+    
     if(devices.size() == 0){
         ofLog() << "no GPU device found... aborting";
         abort();
     }
+    
     cl::Device default_device = devices[0];
+    
+    
     size_t maxWorkGroupSize;
     size_t globalMemSize;
     size_t maxWorkItemDimensions;
     size_t* maxWorkItemSizes;
+    char vendor[32];
+    
+    default_device.getInfo(CL_DEVICE_VENDOR, vendor);
     default_device.getInfo(CL_DEVICE_MAX_WORK_GROUP_SIZE, &maxWorkGroupSize);
     default_device.getInfo(CL_DEVICE_GLOBAL_MEM_SIZE, &globalMemSize);
     default_device.getInfo(CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS, &maxWorkItemDimensions);
     maxWorkItemSizes = new size_t[maxWorkItemDimensions];
-    default_device.getInfo(CL_DEVICE_MAX_WORK_ITEM_SIZES, maxWorkItemSizes);
     
+    ofLog() << "Device Vendor:" << default_device.getInfo<CL_DEVICE_VENDOR>();
+    ofLog() << "Device Name:" << default_device.getInfo<CL_DEVICE_NAME>();
+
     ofLog() << "Max work group size:" << maxWorkGroupSize;
     ofLog() << "Global memory size:" << globalMemSize;
     ofLog() << "Max Work Item Dimensions:" << maxWorkItemDimensions;
@@ -152,18 +162,18 @@ void ofApp::update(){
     
     //shader update
     shader.begin();
-    shader.setUniformTexture("tex0", cubeImage[0].getTextureReference(), 0);
-    shader.setUniformTexture("tex1", cubeImage[1].getTextureReference(), 1);
-    shader.setUniformTexture("tex2", cubeImage[2].getTextureReference(), 2);
-    shader.setUniformTexture("tex3", cubeImage[3].getTextureReference(), 3);
-    shader.setUniformTexture("tex4", cubeImage[4].getTextureReference(), 4);
-    shader.setUniformTexture("tex5", cubeImage[5].getTextureReference(), 5);
+//    shader.setUniformTexture("tex0", cubeImage[0].getTextureReference(), 0);
+//    shader.setUniformTexture("tex1", cubeImage[1].getTextureReference(), 1);
+//    shader.setUniformTexture("tex2", cubeImage[2].getTextureReference(), 2);
+//    shader.setUniformTexture("tex3", cubeImage[3].getTextureReference(), 3);
+//    shader.setUniformTexture("tex4", cubeImage[4].getTextureReference(), 4);
+//    shader.setUniformTexture("tex5", cubeImage[5].getTextureReference(), 5);
 
     shader.setUniform3f("LightIntensity", 1.0, 1.0, 1.0);
     shader.setUniform4fv("LightPosition", lightPosition.getPtr());
-    shader.setUniform3f("Ka", 0.4, 0.2, 0.9);
-    shader.setUniform3f("Kd", 0.5, 0.6, 0.5);
-    shader.setUniform3f("Ks", 0.9, 0.2, 0.2);
+    shader.setUniform3f("Ka", 0.5, 0.5, 0.5);
+    shader.setUniform3f("Kd", 0.3, 0.3, 0.3);
+    shader.setUniform3f("Ks", 0.5, 0.5, 0.5);
     shader.setUniform1f("Shininess", 1.0);
 
     shader.setUniformMatrix4f("ModelViewMatrix",modelViewMatrix);
